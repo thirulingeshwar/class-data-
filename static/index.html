@@ -1,0 +1,771 @@
+<!-- static/index.html - Frontend with API Integration -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Thirulingeshwar Class | MongoDB Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        :root {
+            --bg-page: #fef9e8;
+            --surface: #ffffff;
+            --surface-2: #fffaf0;
+            --text-primary: #2c2418;
+            --text-secondary: #5c4b32;
+            --border: #f0e4cc;
+            --accent: #e67e22;
+            --accent-hover: #d35400;
+            --accent-soft: #fdf2e3;
+            --danger: #e74c3c;
+            --danger-hover: #c0392b;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --radius-card: 1.25rem;
+            --radius-btn: 0.75rem;
+        }
+
+        body.dark {
+            --bg-page: #1a120b;
+            --surface: #2c2418;
+            --surface-2: #3d3224;
+            --text-primary: #f5e6d3;
+            --text-secondary: #d4c5b0;
+            --border: #4a3e2e;
+            --accent: #f39c12;
+            --accent-hover: #e67e22;
+            --accent-soft: #3d3224;
+        }
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-primary);
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--surface);
+            padding: 0.8rem 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #f39c12);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 8px rgba(230,126,34,0.2);
+        }
+
+        .nav-btn:hover:not(.active) {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .dark-toggle, .sync-status {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .sync-status {
+            cursor: default;
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+
+        .sync-status.syncing {
+            background: var(--warning);
+        }
+
+        .sync-status.error {
+            background: var(--danger);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active-page {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230,126,34,0.2);
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            padding: 0.7rem 1.3rem;
+            border-radius: var(--radius-btn);
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 0.9rem;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--surface-2);
+            transform: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .student-list-item, .record-item {
+            background: var(--surface-2);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            border: 1px solid var(--border);
+        }
+
+        .student-info h4, .record-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-info p, .record-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.present { background: #27ae6020; color: #27ae60; }
+        .badge.absent { background: #e74c3c20; color: #e74c3c; }
+
+        .search-bar {
+            margin-bottom: 1.2rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-page);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--border);
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .action-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+        }
+
+        .icon-btn.edit-student {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .icon-btn.delete-student {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .stats-card {
+            background: var(--accent-soft);
+            padding: 1.2rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .progress-bar-container {
+            background: var(--border);
+            border-radius: 1rem;
+            height: 12px;
+            width: 100%;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: var(--accent);
+            height: 12px;
+            border-radius: 1rem;
+            transition: width 0.3s ease;
+        }
+
+        .attendance-option-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.1s;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--accent), #f39c12);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 0.75rem; }
+            .top-bar { flex-direction: column; align-items: stretch; text-align: center; }
+            .nav-links { justify-content: center; }
+            .card { padding: 1rem; }
+            .stats-number { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3>📚 Connecting to MongoDB Atlas...</h3>
+    <p>Loading Thirulingeshwar Class Database</p>
+</div>
+
+<div class="app-container" style="display: none;" id="appContainer">
+    <div class="top-bar">
+        <div class="logo">
+            <h1>📖 Thirulingeshwar Class Attendance</h1>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn" data-page="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-page="addStudent">➕ Add Student</button>
+            <button class="nav-btn" data-page="attendance">✅ Mark Attendance</button>
+            <button class="nav-btn" data-page="records">📜 Records</button>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <span class="sync-status" id="syncStatus">🟢 Connected to MongoDB</span>
+            <button class="dark-toggle" id="darkModeToggle">🌙 Dark Mode</button>
+        </div>
+    </div>
+
+    <div id="dashboardPage" class="page">
+        <div class="welcome-banner">
+            <h2>🙏 Namaste, Welcome to Thirulingeshwar Class</h2>
+            <p>MongoDB Cloud Sync | Real-time attendance tracking with database persistence</p>
+        </div>
+        <div class="card">
+            <h2>📈 Attendance Overview</h2>
+            <div class="grid-2" style="margin-top: 1rem;">
+                <div class="stats-card"><h3>👩‍🎓 Total Students</h3><p class="stats-number" id="totalStudentsCount">0</p></div>
+                <div class="stats-card"><h3>📆 Today's Attendance</h3><p class="stats-number" id="todayAttendanceCount">0</p><small id="todayPercentage">0% present</small></div>
+            </div>
+            <div style="margin-top: 1.5rem;">
+                <h3>📊 Overall Attendance Rate</h3>
+                <div class="progress-bar-container"><div id="overallProgressBar" class="progress-fill" style="width: 0%;"></div></div>
+                <p id="overallPercentText" style="margin-top: 0.5rem;">0% overall attendance</p>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                <button id="exportCSVBtn" class="btn-outline">📎 Export to CSV</button>
+                <button id="exportPDFBtn" class="btn-outline">📄 Export PDF</button>
+                <button id="refreshDataBtn" class="btn-outline">🔄 Refresh from MongoDB</button>
+            </div>
+        </div>
+        <div class="card"><h3>⭐ Recent Attendance</h3><div id="recentAttendanceList"></div></div>
+    </div>
+
+    <div id="addStudentPage" class="page">
+        <div class="card">
+            <h2>➕ Register New Student</h2>
+            <form id="studentForm">
+                <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" placeholder="Student Name" required></div>
+                <div class="form-group"><label>Class / Section</label><input type="text" id="studentClass" placeholder="Class 10 - Section A"></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" placeholder="+91 9876543210"></div>
+                <button type="submit">➕ Add to MongoDB</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>📋 Students List</h3>
+            <div class="search-bar"><input type="text" id="studentSearchInput" placeholder="🔍 Search by name"></div>
+            <div id="studentsListContainer"></div>
+        </div>
+    </div>
+
+    <div id="attendancePage" class="page">
+        <div class="card">
+            <h2>✅ Mark Today's Attendance</h2>
+            <p>📅 Date: <strong id="currentDateDisplay"></strong> | 🕒 Auto timestamp</p>
+            <div class="search-bar"><input type="text" id="attendanceSearch" placeholder="Filter students"></div>
+            <div id="studentsAttendanceList"></div>
+            <button id="saveAttendanceBtn" style="margin-top: 1rem; width: 100%;">💾 Save to MongoDB</button>
+        </div>
+    </div>
+
+    <div id="recordsPage" class="page">
+        <div class="card">
+            <h2>📋 Attendance History</h2>
+            <div class="search-bar">
+                <input type="text" id="recordsSearchInput" placeholder="Search by name">
+                <button id="clearSearchRecords" class="btn-outline">Clear</button>
+            </div>
+            <div id="allRecordsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/api';
+    let students = [];
+    let attendanceRecords = [];
+    let currentAttendanceSelections = {};
+
+    async function apiCall(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            showToast('Error connecting to server');
+            throw error;
+        }
+    }
+
+    async function loadStudents() {
+        try {
+            const data = await apiCall('/students');
+            students = data;
+            renderAll();
+            return data;
+        } catch (error) {
+            students = [];
+            renderAll();
+        }
+    }
+
+    async function loadAttendance() {
+        try {
+            const data = await apiCall('/attendance');
+            attendanceRecords = data;
+            renderAll();
+            return data;
+        } catch (error) {
+            attendanceRecords = [];
+            renderAll();
+        }
+    }
+
+    async function loadStats() {
+        try {
+            const stats = await apiCall('/stats');
+            updateDashboardStats(stats);
+            return stats;
+        } catch (error) {
+            console.error('Failed to load stats');
+        }
+    }
+
+    async function addStudentToDB(student) {
+        try {
+            await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
+            await loadStudents();
+            showToast('Student added successfully!');
+        } catch (error) {
+            showToast('Failed to add student');
+        }
+    }
+
+    async function updateStudentInDB(id, updates) {
+        try {
+            await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+            await loadStudents();
+            showToast('Student updated successfully!');
+        } catch (error) {
+            showToast('Failed to update student');
+        }
+    }
+
+    async function deleteStudentFromDB(id) {
+        try {
+            await apiCall(`/students/${id}`, { method: 'DELETE' });
+            await loadStudents();
+            await loadAttendance();
+            showToast('Student deleted successfully!');
+        } catch (error) {
+            showToast('Failed to delete student');
+        }
+    }
+
+    async function saveAttendanceToDB() {
+        const attendanceData = Object.entries(currentAttendanceSelections).map(([studentId, status]) => {
+            const student = students.find(s => s.id === studentId);
+            return { studentId, status, studentName: student?.name, class: student?.class };
+        });
+        
+        try {
+            await apiCall('/attendance', { method: 'POST', body: JSON.stringify({ attendance: attendanceData }) });
+            await loadAttendance();
+            await loadStats();
+            currentAttendanceSelections = {};
+            renderAttendancePageList();
+            showToast('Attendance saved to MongoDB successfully!');
+        } catch (error) {
+            showToast('Failed to save attendance');
+        }
+    }
+
+    function renderStudentList(filter = "") {
+        const container = document.getElementById('studentsListContainer');
+        if (!container) return;
+        let filtered = students.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">👀 No students found</div>`; return; }
+        container.innerHTML = filtered.map(s => `
+            <div class="student-list-item">
+                <div><h4>🙏 ${escapeHtml(s.name)}</h4><p>📚 ${escapeHtml(s.class)} | 📞 ${escapeHtml(s.phone || "—")}</p></div>
+                <div class="action-group">
+                    <button class="icon-btn edit-student" data-id="${s.id}">✏️ Edit</button>
+                    <button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>
+                </div>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.edit-student').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const student = students.find(s => s.id === id);
+                if (student) {
+                    const newName = prompt("Edit Name:", student.name);
+                    if (newName && newName.trim()) await updateStudentInDB(id, { name: newName.trim() });
+                    const newClass = prompt("Edit Class:", student.class);
+                    if (newClass !== null) await updateStudentInDB(id, { class: newClass.trim() || "Not specified" });
+                    const newPhone = prompt("Edit Phone:", student.phone);
+                    if (newPhone !== null) await updateStudentInDB(id, { phone: newPhone.trim() });
+                }
+            });
+        });
+        
+        document.querySelectorAll('.delete-student').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (confirm("Delete student?")) await deleteStudentFromDB(btn.dataset.id);
+            });
+        });
+    }
+
+    function renderAttendancePageList() {
+        const container = document.getElementById('studentsAttendanceList');
+        if (!container) return;
+        const searchTerm = document.getElementById('attendanceSearch')?.value.toLowerCase() || "";
+        let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">No students</div>`; return; }
+        container.innerHTML = filtered.map(s => {
+            const selected = currentAttendanceSelections[s.id] || "Present";
+            return `<div class="student-list-item"><div><h4>🙏 ${escapeHtml(s.name)}</h4><p>📚 ${escapeHtml(s.class)}</p></div>
+                <div style="display:flex;gap:0.5rem;">
+                    <button class="attendance-option-btn" data-sid="${s.id}" data-status="Present" style="background:${selected === 'Present' ? '#27ae60' : 'var(--border)'};color:${selected === 'Present' ? 'white' : 'var(--text-primary)'}">✅ Present</button>
+                    <button class="attendance-option-btn" data-sid="${s.id}" data-status="Absent" style="background:${selected === 'Absent' ? '#e74c3c' : 'var(--border)'};color:${selected === 'Absent' ? 'white' : 'var(--text-primary)'}">❌ Absent</button>
+                </div></div>`;
+        }).join('');
+        
+        document.querySelectorAll('.attendance-option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentAttendanceSelections[btn.dataset.sid] = btn.dataset.status;
+                renderAttendancePageList();
+            });
+        });
+    }
+
+    function renderRecordsPage(filter = "") {
+        const container = document.getElementById('allRecordsContainer');
+        if (!container) return;
+        let records = [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (filter) records = records.filter(r => r.studentName.toLowerCase().includes(filter.toLowerCase()));
+        if (records.length === 0) { container.innerHTML = `<div class="empty-state">📭 No records</div>`; return; }
+        container.innerHTML = records.map(rec => `
+            <div class="record-item">
+                <div><h4>🙏 ${escapeHtml(rec.studentName)}</h4><p>📚 ${escapeHtml(rec.class)} | 📅 ${rec.date} at ${rec.time}</p></div>
+                <div><span class="badge ${rec.status.toLowerCase()}">${rec.status}</span></div>
+            </div>
+        `).join('');
+    }
+
+    function updateDashboardStats(stats) {
+        if (!stats) return;
+        document.getElementById('totalStudentsCount').innerText = stats.totalStudents || 0;
+        document.getElementById('todayAttendanceCount').innerHTML = stats.todayTotal ? `${stats.todayPresent} / ${stats.todayTotal}` : "0 / 0";
+        let percentToday = stats.todayTotal ? (stats.todayPresent / stats.todayTotal * 100).toFixed(1) : 0;
+        document.getElementById('todayPercentage').innerHTML = `${percentToday}% present`;
+        let percentOverall = stats.totalRecords ? (stats.totalPresent / stats.totalRecords * 100).toFixed(1) : 0;
+        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${stats.totalPresent}/${stats.totalRecords})`;
+        document.getElementById('overallProgressBar').style.width = `${percentOverall}%`;
+        
+        const recent = attendanceRecords.slice(-5).reverse();
+        const recentDiv = document.getElementById('recentAttendanceList');
+        if (recentDiv) recentDiv.innerHTML = recent.map(r => `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">📌 ${r.studentName} - ${r.date}: <strong>${r.status}</strong></div>`).join('') || "<div class='empty-state'>No records</div>";
+    }
+
+    function renderAll() {
+        renderStudentList(document.getElementById('studentSearchInput')?.value || "");
+        renderAttendancePageList();
+        renderRecordsPage(document.getElementById('recordsSearchInput')?.value || "");
+        loadStats();
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function showToast(msg) { alert(msg); }
+
+    // Event Listeners
+    document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('studentName').value.trim();
+        if (!name) { alert("Name required"); return; }
+        if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) { alert("Student exists"); return; }
+        await addStudentToDB({
+            name: name,
+            class: document.getElementById('studentClass').value.trim() || "Not specified",
+            phone: document.getElementById('phone').value.trim()
+        });
+        document.getElementById('studentForm').reset();
+    });
+
+    document.getElementById('saveAttendanceBtn')?.addEventListener('click', async () => {
+        await saveAttendanceToDB();
+    });
+
+    document.getElementById('refreshDataBtn')?.addEventListener('click', async () => {
+        await loadStudents();
+        await loadAttendance();
+        showToast("Data refreshed from MongoDB");
+    });
+
+    document.getElementById('exportCSVBtn')?.addEventListener('click', async () => {
+        const data = await apiCall('/export');
+        let csv = "Student Name,Class,Date,Time,Status\n";
+        data.forEach(r => { csv += `${r.studentName},${r.class},${r.date},${r.time},${r.status}\n`; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `attendance_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        showToast("CSV exported");
+    });
+
+    document.getElementById('exportPDFBtn')?.addEventListener('click', async () => {
+        const data = await apiCall('/export');
+        let html = `<html><head><title>Attendance Report</title><style>table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px}</style></head><body><h2>Thirulingeshwar Class - Attendance Report</h2><table><tr><th>Name</th><th>Class</th><th>Date</th><th>Time</th><th>Status</th></tr>`;
+        data.forEach(r => { html += `<tr><td>${r.studentName}</td><td>${r.class}</td><td>${r.date}</td><td>${r.time}</td><td>${r.status}</td></tr>`; });
+        html += `</table></body></html>`;
+        const win = window.open();
+        win.document.write(html);
+        win.document.close();
+        win.print();
+        showToast("PDF generated");
+    });
+
+    // Navigation
+    async function init() {
+        await Promise.all([loadStudents(), loadAttendance()]);
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }, 500);
+        
+        const pages = ['dashboardPage', 'addStudentPage', 'attendancePage', 'recordsPage'];
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pageId = btn.dataset.page + 'Page';
+                pages.forEach(p => document.getElementById(p).classList.remove('active-page'));
+                document.getElementById(pageId).classList.add('active-page');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (pageId === 'attendancePage') document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString();
+                renderAll();
+            });
+        });
+        
+        document.getElementById('studentSearchInput')?.addEventListener('input', (e) => renderStudentList(e.target.value));
+        document.getElementById('attendanceSearch')?.addEventListener('input', () => renderAttendancePageList());
+        document.getElementById('recordsSearchInput')?.addEventListener('input', (e) => renderRecordsPage(e.target.value));
+        document.getElementById('clearSearchRecords')?.addEventListener('click', () => { document.getElementById('recordsSearchInput').value = ''; renderRecordsPage(''); });
+        document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString();
+        document.querySelector('.nav-btn[data-page="dashboard"]').click();
+    }
+
+    // Dark mode
+    const darkToggle = document.getElementById('darkModeToggle');
+    darkToggle?.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('mongodb_dark_mode', document.body.classList.contains('dark'));
+        darkToggle.textContent = document.body.classList.contains('dark') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+    if (localStorage.getItem('mongodb_dark_mode') === 'true') document.body.classList.add('dark');
+
+    init();
+</script>
+</body>
+</html>
