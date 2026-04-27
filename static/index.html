@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Thirulingeshwar Class | Complete Attendance System</title>
+    <title>Thirulingeshwar Class | MongoDB Attendance with In/Out Timing</title>
     <style>
         * {
             margin: 0;
@@ -133,6 +133,14 @@
             border: none;
         }
 
+        .sync-status.syncing {
+            background: var(--warning);
+        }
+
+        .sync-status.error {
+            background: var(--danger);
+        }
+
         .page {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -217,14 +225,6 @@
             transform: none;
         }
 
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger-hover);
-        }
-
         .grid-2 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -244,16 +244,6 @@
             border: 1px solid var(--border);
         }
 
-        .student-info h4, .record-info h4 {
-            font-size: 1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .student-info p, .record-info p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
         .badge {
             padding: 0.25rem 0.75rem;
             border-radius: 2rem;
@@ -263,7 +253,6 @@
 
         .badge.present { background: #27ae6020; color: #27ae60; }
         .badge.absent { background: #e74c3c20; color: #e74c3c; }
-        .badge.days { background: #3498db20; color: #3498db; }
 
         .search-bar {
             margin-bottom: 1.2rem;
@@ -338,6 +327,11 @@
         .icon-btn.view-details {
             background: #dbeafe;
             color: #2563eb;
+        }
+
+        .icon-btn.set-timing {
+            background: #d1fae5;
+            color: #065f46;
         }
 
         .stats-card {
@@ -417,6 +411,40 @@
             margin-left: 0.5rem;
         }
 
+        .timing-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: var(--surface-2);
+            border-radius: 0.5rem;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .in-time {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .out-time {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .timing-panel {
+            background: var(--accent-soft);
+            padding: 0.8rem;
+            border-radius: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .in-out-status {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 640px) {
             body { padding: 0.75rem; }
             .top-bar { flex-direction: column; align-items: stretch; text-align: center; }
@@ -430,15 +458,15 @@
 <body>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
-    <h3>📚 Thirulingeshwar Class Attendance System</h3>
-    <p>Loading your dashboard...</p>
+    <h3>📚 Connecting to MongoDB Server...</h3>
+    <p>Fetching student data from database</p>
 </div>
 
 <div class="app-container" style="display: none;" id="appContainer">
     <div class="top-bar">
         <div class="logo">
             <h1>📖 Thirulingeshwar Class Attendance</h1>
-            <p>Complete Student Management System | MongoDB Ready</p>
+            <p>MongoDB Cloud | Complete Student Management with In/Out Timing</p>
         </div>
         <div class="nav-links">
             <button class="nav-btn" data-page="dashboard">📊 Dashboard</button>
@@ -447,7 +475,7 @@
             <button class="nav-btn" data-page="records">📜 Records</button>
         </div>
         <div style="display: flex; gap: 0.5rem;">
-            <span class="sync-status" id="syncStatus">🟢 System Ready</span>
+            <span class="sync-status" id="syncStatus">🟢 Connected to MongoDB</span>
             <button class="dark-toggle" id="darkModeToggle">🌙 Dark Mode</button>
         </div>
     </div>
@@ -455,7 +483,7 @@
     <div id="dashboardPage" class="page">
         <div class="welcome-banner">
             <h2>🙏 Namaste, Welcome to Thirulingeshwar Class</h2>
-            <p>Track student attendance with Name, Branch/Office, Class, Working Days & Phone Number</p>
+            <p>MongoDB Cloud Sync | Track students with Name, Branch, Class, Working Days, Phone & In/Out Timing</p>
         </div>
         <div class="card">
             <h2>📈 Attendance Overview</h2>
@@ -471,7 +499,7 @@
             <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
                 <button id="exportCSVBtn" class="btn-outline">📎 Export to CSV</button>
                 <button id="exportPDFBtn" class="btn-outline">📄 Export PDF</button>
-                <button id="refreshDataBtn" class="btn-outline">🔄 Refresh Data</button>
+                <button id="refreshDataBtn" class="btn-outline">🔄 Refresh from MongoDB</button>
             </div>
         </div>
         <div class="card"><h3>⭐ Recent Attendance</h3><div id="recentAttendanceList"></div></div>
@@ -485,17 +513,14 @@
                     <label>Student Name *</label>
                     <input type="text" id="studentName" placeholder="Enter full name" required>
                 </div>
-
                 <div class="form-group">
                     <label>Branch / Office</label>
                     <input type="text" id="studentBranch" placeholder="CSE / ECE / MECH / Admin Office">
                 </div>
-
                 <div class="form-group">
                     <label>Class / Section</label>
                     <input type="text" id="studentClass" placeholder="3rd Year / Section A / Batch 2024">
                 </div>
-
                 <div class="form-group">
                     <label>Working Days</label>
                     <div class="days-grid">
@@ -508,17 +533,23 @@
                         <label class="day-checkbox"><input type="checkbox" value="Sunday"> Sun</label>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Phone Number</label>
                     <input type="tel" id="phone" placeholder="+91 9876543210">
                 </div>
-
-                <button type="submit">➕ Add Student</button>
+                <div class="form-group">
+                    <label>Default In Time (Optional)</label>
+                    <input type="time" id="defaultInTime" value="09:00">
+                </div>
+                <div class="form-group">
+                    <label>Default Out Time (Optional)</label>
+                    <input type="time" id="defaultOutTime" value="17:00">
+                </div>
+                <button type="submit">💾 Save to MongoDB</button>
             </form>
         </div>
         <div class="card">
-            <h3>📋 Students List</h3>
+            <h3>📋 Students List (from MongoDB)</h3>
             <div class="search-bar"><input type="text" id="studentSearchInput" placeholder="🔍 Search by name, branch, or class"></div>
             <div id="studentsListContainer"></div>
         </div>
@@ -526,11 +557,11 @@
 
     <div id="attendancePage" class="page">
         <div class="card">
-            <h2>✅ Mark Today's Attendance</h2>
-            <p>📅 Date: <strong id="currentDateDisplay"></strong> | 🕒 Time: <strong id="currentTimeDisplay"></strong></p>
+            <h2>✅ Mark Today's Attendance with In/Out Timing</h2>
+            <p>📅 Date: <strong id="currentDateDisplay"></strong> | 🕒 Current Time: <strong id="currentTimeDisplay"></strong></p>
             <div class="search-bar"><input type="text" id="attendanceSearch" placeholder="Filter students"></div>
             <div id="studentsAttendanceList"></div>
-            <button id="saveAttendanceBtn" style="margin-top: 1rem; width: 100%;">💾 Save Attendance</button>
+            <button id="saveAttendanceBtn" style="margin-top: 1rem; width: 100%;">💾 Save Attendance to MongoDB</button>
         </div>
     </div>
 
@@ -558,38 +589,213 @@
 </div>
 
 <script>
-    // Data storage
+    // API Configuration - Works with your Flask backend
+    const API_BASE = '/api';
+    
+    // Local cache for data
     let students = [];
     let attendanceRecords = [];
     let currentAttendanceSelections = {};
 
-    function loadData() {
-        const storedStudents = localStorage.getItem('thirulingeshwar_students_v2');
-        const storedAttendance = localStorage.getItem('thirulingeshwar_attendance_v2');
-        
-        if (storedStudents) students = JSON.parse(storedStudents);
-        if (storedAttendance) attendanceRecords = JSON.parse(storedAttendance);
-        
-        if (!students.length) seedDemoData();
-        saveToLocal();
+    // Helper function for API calls
+    async function apiCall(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            updateSyncStatus('error', '⚠️ Server connection error');
+            throw error;
+        }
     }
 
-    function seedDemoData() {
-        const now = new Date();
-        const today = now.toISOString().slice(0, 10);
-        const currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
-        
-        students = [        ];
-        
-        attendanceRecords = [
-        ];
+    // Load students from MongoDB
+    async function loadStudents() {
+        updateSyncStatus('syncing', '🔄 Loading students...');
+        try {
+            const data = await apiCall('/students');
+            students = data;
+            updateSyncStatus('connected', `✅ ${students.length} students loaded`);
+            renderAll();
+            return data;
+        } catch (error) {
+            students = [];
+            renderAll();
+            return [];
+        }
     }
 
-    function saveToLocal() {
-        localStorage.setItem('thirulingeshwar_students_v2', JSON.stringify(students));
-        localStorage.setItem('thirulingeshwar_attendance_v2', JSON.stringify(attendanceRecords));
+    // Load attendance from MongoDB
+    async function loadAttendance() {
+        try {
+            const data = await apiCall('/attendance');
+            attendanceRecords = data;
+            renderAll();
+            return data;
+        } catch (error) {
+            attendanceRecords = [];
+            renderAll();
+            return [];
+        }
     }
 
+    // Load stats from MongoDB
+    async function loadStats() {
+        try {
+            const stats = await apiCall('/stats');
+            updateDashboardStats(stats);
+            return stats;
+        } catch (error) {
+            console.error('Failed to load stats');
+        }
+    }
+
+    // Add student to MongoDB
+    async function addStudentToDB(student) {
+        updateSyncStatus('syncing', '💾 Saving student...');
+        try {
+            await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
+            await loadStudents();
+            updateSyncStatus('connected', '✅ Student saved to MongoDB');
+            showToast(`✅ Student "${student.name}" added successfully!`);
+        } catch (error) {
+            updateSyncStatus('error', '⚠️ Failed to save');
+            showToast('Failed to add student');
+        }
+    }
+
+    // Update student in MongoDB
+    async function updateStudentInDB(id, updates) {
+        updateSyncStatus('syncing', '🔄 Updating student...');
+        try {
+            await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+            await loadStudents();
+            updateSyncStatus('connected', '✅ Student updated');
+            showToast('Student updated successfully!');
+        } catch (error) {
+            updateSyncStatus('error', '⚠️ Update failed');
+            showToast('Failed to update student');
+        }
+    }
+
+    // Delete student from MongoDB
+    async function deleteStudentFromDB(id) {
+        const student = students.find(s => s.id === id);
+        if (!confirm(`Delete "${student?.name}" and all their attendance records?`)) return;
+        
+        updateSyncStatus('syncing', '🗑️ Deleting student...');
+        try {
+            await apiCall(`/students/${id}`, { method: 'DELETE' });
+            await loadStudents();
+            await loadAttendance();
+            updateSyncStatus('connected', '✅ Student deleted');
+            showToast(`Student "${student?.name}" deleted!`);
+        } catch (error) {
+            updateSyncStatus('error', '⚠️ Delete failed');
+            showToast('Failed to delete student');
+        }
+    }
+
+    // Save attendance to MongoDB with In/Out timing
+    async function saveAttendanceToDB() {
+        const todayDate = new Date().toISOString().slice(0, 10);
+        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+        
+        updateSyncStatus('syncing', '💾 Saving attendance...');
+        let attendanceData = [];
+        
+        for (let student of students) {
+            const selection = currentAttendanceSelections[student.id];
+            if (!selection || !selection.status) continue;
+            
+            attendanceData.push({
+                studentId: student.id,
+                studentName: student.name,
+                class: student.class,
+                status: selection.status,
+                inTime: selection.inTime || student.inTime || '09:00',
+                outTime: selection.outTime || student.outTime || '17:00',
+                branch: student.branch,
+                days: student.days || [],
+                date: todayDate
+            });
+        }
+        
+        try {
+            await apiCall('/attendance', { method: 'POST', body: JSON.stringify({ attendance: attendanceData }) });
+            await loadAttendance();
+            await loadStats();
+            currentAttendanceSelections = {};
+            renderAll();
+            updateSyncStatus('connected', '✅ Attendance saved to MongoDB');
+            showToast(`Attendance saved to MongoDB!`);
+        } catch (error) {
+            updateSyncStatus('error', '⚠️ Save failed');
+            showToast('Failed to save attendance');
+        }
+    }
+
+    // Set student timing
+    async function setStudentTiming(id) {
+        const student = students.find(s => s.id === id);
+        if (!student) return;
+        
+        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+        
+        const inTime = prompt(`Set INCOMING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent time: ${currentTime}`, student.inTime || '09:00');
+        const outTime = prompt(`Set OUTGOING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent time: ${currentTime}`, student.outTime || '17:00');
+        
+        const updates = {};
+        if (inTime && inTime.trim()) updates.inTime = inTime.trim();
+        if (outTime && outTime.trim()) updates.outTime = outTime.trim();
+        
+        if (Object.keys(updates).length > 0) {
+            await updateStudentInDB(id, updates);
+            showToast(`Timing updated for ${student.name}`);
+        }
+    }
+
+    // Delete attendance record
+    async function deleteAttendanceRecord(recordId) {
+        if (confirm('Delete this attendance record from MongoDB?')) {
+            updateSyncStatus('syncing', '🗑️ Deleting record...');
+            try {
+                await apiCall(`/attendance/${recordId}`, { method: 'DELETE' });
+                await loadAttendance();
+                updateSyncStatus('connected', '✅ Record deleted');
+                showToast('Attendance record deleted!');
+            } catch (error) {
+                showToast('Failed to delete record');
+            }
+        }
+    }
+
+    // Edit attendance record
+    async function editAttendanceRecord(recordId) {
+        const record = attendanceRecords.find(r => r.id === recordId);
+        if (record) {
+            const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
+            if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
+                updateSyncStatus('syncing', '🔄 Updating attendance...');
+                try {
+                    await apiCall(`/attendance/${recordId}`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
+                    await loadAttendance();
+                    updateSyncStatus('connected', '✅ Attendance updated');
+                    showToast(`Attendance updated to ${newStatus}!`);
+                } catch (error) {
+                    showToast('Failed to update attendance');
+                }
+            } else if (newStatus) {
+                showToast('Invalid status! Please enter "Present" or "Absent"');
+            }
+        }
+    }
+
+    // Helper Functions
     function updateSyncStatus(status, text) {
         const statusEl = document.getElementById('syncStatus');
         if (statusEl) {
@@ -598,120 +804,26 @@
         }
     }
 
-    function genId() { return Date.now().toString() + Math.random().toString(36).substr(2, 6); }
-
-    function addStudent(student) {
-        const newStudent = {
-            ...student,
-            id: genId(),
-            days: student.days || [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        students.push(newStudent);
-        saveToLocal();
-        renderAll();
-        showToast(`✅ Student "${student.name}" added successfully!`);
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.backgroundColor = 'var(--accent)';
+        toast.style.color = 'white';
+        toast.style.padding = '0.75rem 1.5rem';
+        toast.style.borderRadius = '2rem';
+        toast.style.zIndex = '2000';
+        toast.style.fontWeight = '500';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 
-    function updateStudent(id, updates) {
-        const index = students.findIndex(s => s.id === id);
-        if (index !== -1) {
-            students[index] = { 
-                ...students[index], 
-                ...updates, 
-                updatedAt: new Date().toISOString() 
-            };
-            attendanceRecords.forEach(record => {
-                if (record.studentId === id) {
-                    if (updates.name) record.studentName = updates.name;
-                    if (updates.branch) record.branch = updates.branch;
-                    if (updates.class) record.class = updates.class;
-                }
-            });
-            saveToLocal();
-            renderAll();
-            showToast(`✏️ Student updated successfully!`);
-        }
-    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
-    function deleteStudent(id) {
-        const student = students.find(s => s.id === id);
-        if (confirm(`Delete "${student?.name}" and all their attendance records?`)) {
-            students = students.filter(s => s.id !== id);
-            attendanceRecords = attendanceRecords.filter(r => r.studentId !== id);
-            saveToLocal();
-            renderAll();
-            showToast(`🗑️ Student "${student?.name}" deleted!`);
-        }
-    }
-
-    function deleteAttendanceRecord(recordId) {
-        if (confirm('Delete this attendance record?')) {
-            attendanceRecords = attendanceRecords.filter(r => r.id !== recordId);
-            saveToLocal();
-            renderAll();
-            showToast(`📅 Attendance record deleted!`);
-        }
-    }
-
-    function editAttendanceRecord(recordId) {
-        const record = attendanceRecords.find(r => r.id === recordId);
-        if (record) {
-            const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
-            if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
-                record.status = newStatus;
-                record.updatedAt = new Date().toISOString();
-                record.time = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
-                saveToLocal();
-                renderAll();
-                showToast(`✏️ Attendance updated to ${newStatus}!`);
-            } else if (newStatus) {
-                showToast('Invalid status! Please enter "Present" or "Absent"');
-            }
-        }
-    }
-
-    function saveAttendance() {
-        const todayDate = new Date().toISOString().slice(0, 10);
-        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
-        
-        let savedCount = 0;
-        let updatedCount = 0;
-        
-        for (let student of students) {
-            const status = currentAttendanceSelections[student.id];
-            if (!status) continue;
-            
-            const existingIndex = attendanceRecords.findIndex(r => r.studentId === student.id && r.date === todayDate);
-            
-            if (existingIndex === -1) {
-                attendanceRecords.push({
-                    id: genId(),
-                    studentId: student.id,
-                    studentName: student.name,
-                    branch: student.branch,
-                    class: student.class,
-                    date: todayDate,
-                    time: currentTime,
-                    status: status,
-                    timestamp: new Date().toISOString()
-                });
-                savedCount++;
-            } else {
-                attendanceRecords[existingIndex].status = status;
-                attendanceRecords[existingIndex].time = currentTime;
-                attendanceRecords[existingIndex].updatedAt = new Date().toISOString();
-                updatedCount++;
-            }
-        }
-        
-        saveToLocal();
-        currentAttendanceSelections = {};
-        renderAll();
-        showToast(`✅ Attendance saved: ${savedCount} new, ${updatedCount} updated`);
-    }
-
+    // ==================== RENDER FUNCTIONS ====================
     function renderStudentList(filter = "") {
         const container = document.getElementById('studentsListContainer');
         if (!container) return;
@@ -723,7 +835,7 @@
         );
         
         if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">👀 No students found</div>`; 
+            container.innerHTML = `<div class="empty-state">👀 No students found in MongoDB</div>`; 
             return; 
         }
         
@@ -732,12 +844,17 @@
                 <div>
                     <h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
                     <p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p>
-                    <p style="font-size:0.7rem; color:var(--text-secondary);">📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'All days'}</p>
+                    <p style="font-size:0.7rem; color:var(--text-secondary);">
+                        📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'All days'}
+                        ${s.inTime ? `<span class="timing-badge">🕐 Default In: ${s.inTime}</span>` : ''}
+                        ${s.outTime ? `<span class="timing-badge">🕔 Default Out: ${s.outTime}</span>` : ''}
+                    </p>
                 </div>
                 <div class="action-group">
                     <button class="icon-btn view-details" data-id="${s.id}">👁️ View</button>
                     <button class="icon-btn edit-student" data-id="${s.id}">✏️ Edit</button>
                     <button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>
+                    <button class="icon-btn set-timing" data-id="${s.id}">⏰ Set In/Out</button>
                 </div>
             </div>
         `).join('');
@@ -752,19 +869,23 @@
                 const student = students.find(s => s.id === id);
                 if (student) {
                     const newName = prompt("Edit Name:", student.name);
-                    if (newName && newName.trim()) updateStudent(id, { name: newName.trim() });
+                    if (newName && newName.trim()) updateStudentInDB(id, { name: newName.trim() });
                     const newBranch = prompt("Edit Branch/Office:", student.branch);
-                    if (newBranch !== null) updateStudent(id, { branch: newBranch.trim() });
+                    if (newBranch !== null) updateStudentInDB(id, { branch: newBranch.trim() });
                     const newClass = prompt("Edit Class:", student.class);
-                    if (newClass !== null) updateStudent(id, { class: newClass.trim() });
+                    if (newClass !== null) updateStudentInDB(id, { class: newClass.trim() });
                     const newPhone = prompt("Edit Phone Number:", student.phone);
-                    if (newPhone !== null) updateStudent(id, { phone: newPhone.trim() });
+                    if (newPhone !== null) updateStudentInDB(id, { phone: newPhone.trim() });
                 }
             });
         });
         
         document.querySelectorAll('.delete-student').forEach(btn => {
-            btn.addEventListener('click', () => deleteStudent(btn.dataset.id));
+            btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id));
+        });
+        
+        document.querySelectorAll('.set-timing').forEach(btn => {
+            btn.addEventListener('click', () => setStudentTiming(btn.dataset.id));
         });
     }
 
@@ -784,7 +905,9 @@
                 <p><strong>📚 Class:</strong> ${escapeHtml(student.class || '—')}</p>
                 <p><strong>📞 Phone:</strong> ${escapeHtml(student.phone || '—')}</p>
                 <p><strong>📅 Working Days:</strong> ${student.days && student.days.length ? student.days.join(', ') : 'All days'}</p>
-                <p><strong>📅 Added on:</strong> ${new Date(student.createdAt).toLocaleString()}</p>
+                <p><strong>🕐 Default In Time:</strong> ${student.inTime || 'Not set'}</p>
+                <p><strong>🕔 Default Out Time:</strong> ${student.outTime || 'Not set'}</p>
+                <p><strong>📅 Added on:</strong> ${student.created_at ? new Date(student.created_at).toLocaleString() : '—'}</p>
                 <hr>
                 <h3>📊 Attendance Summary</h3>
                 <p><strong>Total Records:</strong> ${studentRecords.length}</p>
@@ -796,7 +919,6 @@
                 </div>
             </div>
         `;
-        
         document.getElementById('studentModal').style.display = 'flex';
     }
 
@@ -807,21 +929,27 @@
         let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
         
         if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">No students found</div>`; 
+            container.innerHTML = `<div class="empty-state">No students found in MongoDB</div>`; 
             return; 
         }
         
         container.innerHTML = filtered.map(s => {
-            const selected = currentAttendanceSelections[s.id] || "Present";
+            const selected = currentAttendanceSelections[s.id] || { status: "Present", inTime: s.inTime || '09:00', outTime: s.outTime || '17:00' };
             return `
                 <div class="student-list-item">
                     <div>
                         <h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
                         <p>📚 ${escapeHtml(s.class || '—')}</p>
+                        <div class="timing-panel">
+                            <label style="font-size:0.8rem;">⏰ In Time:</label>
+                            <input type="time" id="inTime_${s.id}" class="in-time-input" value="${selected.inTime || s.inTime || '09:00'}" style="width:100px; padding:0.3rem; margin-right:1rem;">
+                            <label style="font-size:0.8rem;">⏰ Out Time:</label>
+                            <input type="time" id="outTime_${s.id}" class="out-time-input" value="${selected.outTime || s.outTime || '17:00'}" style="width:100px; padding:0.3rem;">
+                        </div>
                     </div>
                     <div style="display:flex;gap:0.5rem;">
-                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Present" style="background:${selected === 'Present' ? '#27ae60' : 'var(--border)'};color:${selected === 'Present' ? 'white' : 'var(--text-primary)'}">✅ Present</button>
-                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Absent" style="background:${selected === 'Absent' ? '#e74c3c' : 'var(--border)'};color:${selected === 'Absent' ? 'white' : 'var(--text-primary)'}">❌ Absent</button>
+                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Present" style="background:${selected.status === 'Present' ? '#27ae60' : 'var(--border)'};color:${selected.status === 'Present' ? 'white' : 'var(--text-primary)'}">✅ Present</button>
+                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Absent" style="background:${selected.status === 'Absent' ? '#e74c3c' : 'var(--border)'};color:${selected.status === 'Absent' ? 'white' : 'var(--text-primary)'}">❌ Absent</button>
                     </div>
                 </div>
             `;
@@ -829,8 +957,27 @@
         
         document.querySelectorAll('.attendance-option-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                currentAttendanceSelections[btn.dataset.sid] = btn.dataset.status;
+                const sid = btn.dataset.sid;
+                const status = btn.dataset.status;
+                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
+                currentAttendanceSelections[sid].status = status;
                 renderAttendancePageList();
+            });
+        });
+        
+        document.querySelectorAll('.in-time-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const sid = input.id.replace('inTime_', '');
+                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
+                currentAttendanceSelections[sid].inTime = e.target.value;
+            });
+        });
+        
+        document.querySelectorAll('.out-time-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const sid = input.id.replace('outTime_', '');
+                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
+                currentAttendanceSelections[sid].outTime = e.target.value;
             });
         });
     }
@@ -849,7 +996,7 @@
         }
         
         if (records.length === 0) { 
-            container.innerHTML = `<div class="empty-state">📭 No attendance records found</div>`; 
+            container.innerHTML = `<div class="empty-state">📭 No attendance records in MongoDB</div>`; 
             return; 
         }
         
@@ -857,7 +1004,12 @@
             <div class="record-item">
                 <div>
                     <h4>🙏 ${escapeHtml(rec.studentName)} <span class="branch-badge">${escapeHtml(rec.branch || '—')}</span></h4>
-                    <p>📚 ${escapeHtml(rec.class || '—')} | 📅 ${rec.date} at 🕒 ${rec.time}</p>
+                    <p>📚 ${escapeHtml(rec.class || '—')} | 📅 ${rec.date}</p>
+                    <div class="in-out-status">
+                        <span class="in-time">🟢 In: ${rec.inTime || rec.time || '—'}</span>
+                        <span class="out-time">🔴 Out: ${rec.outTime || '—'}</span>
+                        <span>📝 Marked: ${rec.time}</span>
+                    </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <span class="badge ${rec.status.toLowerCase()}">${rec.status}</span>
@@ -876,30 +1028,24 @@
         });
     }
 
-    function updateDashboardStats() {
-        document.getElementById('totalStudentsCount').innerText = students.length;
-        
-        const today = new Date().toISOString().slice(0, 10);
-        const todayRecords = attendanceRecords.filter(r => r.date === today);
-        const presentToday = todayRecords.filter(r => r.status === "Present").length;
-        
-        document.getElementById('todayAttendanceCount').innerHTML = todayRecords.length ? `${presentToday} / ${todayRecords.length}` : "0 / 0";
-        let percentToday = todayRecords.length ? (presentToday / todayRecords.length * 100).toFixed(1) : 0;
+    function updateDashboardStats(stats) {
+        if (!stats) return;
+        document.getElementById('totalStudentsCount').innerText = stats.totalStudents || 0;
+        document.getElementById('todayAttendanceCount').innerHTML = stats.todayTotal ? `${stats.todayPresent} / ${stats.todayTotal}` : "0 / 0";
+        let percentToday = stats.todayTotal ? (stats.todayPresent / stats.todayTotal * 100).toFixed(1) : 0;
         document.getElementById('todayPercentage').innerHTML = `${percentToday}% present`;
-        
-        const totalPresent = attendanceRecords.filter(r => r.status === "Present").length;
-        const percentOverall = attendanceRecords.length ? (totalPresent / attendanceRecords.length * 100).toFixed(1) : 0;
-        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${totalPresent}/${attendanceRecords.length})`;
+        let percentOverall = stats.totalRecords ? (stats.totalPresent / stats.totalRecords * 100).toFixed(1) : 0;
+        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${stats.totalPresent}/${stats.totalRecords})`;
         document.getElementById('overallProgressBar').style.width = `${percentOverall}%`;
         
-        const recent = [...attendanceRecords].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+        const recent = attendanceRecords.slice(-5).reverse();
         const recentDiv = document.getElementById('recentAttendanceList');
         if (recentDiv) {
             recentDiv.innerHTML = recent.map(r => `
                 <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                    📌 ${r.studentName} (${r.branch || '—'}) - ${r.date}: <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
+                    📌 ${r.studentName} (${r.branch || '—'}) - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
                 </div>
-            `).join('') || "<div class='empty-state'>No records yet</div>";
+            `).join('') || "<div class='empty-state'>No records in MongoDB</div>";
         }
     }
 
@@ -913,38 +1059,15 @@
         renderStudentList(document.getElementById('studentSearchInput')?.value || "");
         renderAttendancePageList();
         renderRecordsPage(document.getElementById('recordsSearchInput')?.value || "");
-        updateDashboardStats();
-    }
-
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    
-    function showToast(msg) { 
-        const toast = document.createElement('div');
-        toast.textContent = msg;
-        toast.style.position = 'fixed';
-        toast.style.bottom = '20px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.backgroundColor = 'var(--accent)';
-        toast.style.color = 'white';
-        toast.style.padding = '0.75rem 1.5rem';
-        toast.style.borderRadius = '2rem';
-        toast.style.zIndex = '2000';
-        toast.style.fontWeight = '500';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        loadStats();
     }
 
     function closeModal() {
         document.getElementById('studentModal').style.display = 'none';
     }
 
-    window.closeModal = closeModal;
-    window.editAttendanceRecord = editAttendanceRecord;
-    window.deleteAttendanceRecord = deleteAttendanceRecord;
-
     // Event Listeners
-    document.getElementById('studentForm')?.addEventListener('submit', (e) => {
+    document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('studentName').value.trim();
         if (!name) { alert("Name required"); return; }
@@ -952,26 +1075,31 @@
         
         const days = [...document.querySelectorAll('.day-checkbox input:checked')].map(cb => cb.value);
         
-        addStudent({
+        await addStudentToDB({
             name: name,
             branch: document.getElementById('studentBranch').value.trim(),
             class: document.getElementById('studentClass').value.trim(),
             days: days,
-            phone: document.getElementById('phone').value.trim()
+            phone: document.getElementById('phone').value.trim(),
+            inTime: document.getElementById('defaultInTime').value,
+            outTime: document.getElementById('defaultOutTime').value
         });
         document.getElementById('studentForm').reset();
         document.querySelectorAll('.day-checkbox input').forEach(cb => cb.checked = false);
     });
 
-    document.getElementById('saveAttendanceBtn')?.addEventListener('click', saveAttendance);
-    document.getElementById('refreshDataBtn')?.addEventListener('click', () => { renderAll(); showToast("Data refreshed"); });
+    document.getElementById('saveAttendanceBtn')?.addEventListener('click', saveAttendanceToDB);
+    document.getElementById('refreshDataBtn')?.addEventListener('click', async () => { 
+        await Promise.all([loadStudents(), loadAttendance()]);
+        showToast("Data refreshed from MongoDB"); 
+    });
     
     document.getElementById('exportCSVBtn')?.addEventListener('click', () => {
-        let csv = "Student Name,Branch/Office,Class,Working Days,Phone,Date,Time,Status\n";
+        let csv = "Student Name,Branch/Office,Class,Working Days,Phone,Date,Time,In Time,Out Time,Status\n";
         attendanceRecords.forEach(r => { 
             const student = students.find(s => s.id === r.studentId);
             const workingDays = student?.days?.join('; ') || '';
-            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${workingDays}","${student?.phone || ''}","${r.date}","${r.time}","${r.status}"\n`; 
+            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${workingDays}","${student?.phone || ''}","${r.date}","${r.time}","${r.inTime || ''}","${r.outTime || ''}","${r.status}"\n`; 
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
@@ -986,13 +1114,14 @@
             <body><h2>Thirulingeshwar Class - Complete Attendance Report</h2>
             <p>Generated: ${new Date().toLocaleString()}</p>
             <p>Total Students: ${students.length} | Total Records: ${attendanceRecords.length}</p>
-            <table border="1"><tr><th>Student Name</th><th>Branch/Office</th><th>Class</th><th>Working Days</th><th>Phone</th><th>Date</th><th>Time</th><th>Status</th></tr>`;
+            <table border="1"><tr><th>Student Name</th><th>Branch/Office</th><th>Class</th><th>Working Days</th><th>Phone</th><th>Date</th><th>Time</th><th>In Time</th><th>Out Time</th><th>Status</th></tr>`;
         attendanceRecords.forEach(r => { 
             const student = students.find(s => s.id === r.studentId);
             const workingDays = student?.days?.join(', ') || '';
-            html += `<tr><td>${r.studentName}</td><td>${r.branch || ''}</td><td>${r.class || ''}</td><td>${workingDays}</td><td>${student?.phone || ''}</td><td>${r.date}</td><td>${r.time}</td><td>${r.status}</td></tr>`; 
+            html += `<tr><td>${r.studentName}${student?.id || ''}</td><td>${r.branch || ''}${student?.id || ''}</td><td>${r.class || ''}${student?.id || ''}</td><td>${workingDays}${student?.id || ''}</td><td>${student?.phone || ''}${student?.id || ''}</td><td>${r.date}${student?.id || ''}</td><td>${r.time}${student?.id || ''}</td><td>${r.inTime || ''}${student?.id || ''}</td><td>${r.outTime || ''}${student?.id || ''}</td><td>${r.status}${student?.id || ''}</td></tr>`; 
         });
         html += `</table></body></html>`;
+        html = html.replace(/\${student?._id.*?\}/g, '');
         const win = window.open();
         win.document.write(html);
         win.document.close();
@@ -1000,15 +1129,15 @@
         showToast("PDF generated");
     });
 
-    function init() {
-        loadData();
+    // Navigation
+    async function init() {
+        await Promise.all([loadStudents(), loadAttendance()]);
         updateCurrentTime();
         setInterval(updateCurrentTime, 1000);
         
         setTimeout(() => {
             document.getElementById('loadingOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
-            renderAll();
         }, 500);
         
         const pages = ['dashboardPage', 'addStudentPage', 'attendancePage', 'recordsPage'];
@@ -1035,6 +1164,7 @@
         document.querySelector('.nav-btn[data-page="dashboard"]').click();
     }
 
+    // Dark mode
     const darkToggle = document.getElementById('darkModeToggle');
     darkToggle?.addEventListener('click', () => {
         document.body.classList.toggle('dark');
@@ -1043,6 +1173,9 @@
     });
     if (localStorage.getItem('thirulingeshwar_dark_mode') === 'true') document.body.classList.add('dark');
 
+    window.closeModal = closeModal;
+    window.editAttendanceRecord = editAttendanceRecord;
+    window.deleteAttendanceRecord = deleteAttendanceRecord;
     init();
 </script>
 </body>
