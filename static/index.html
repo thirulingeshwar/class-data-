@@ -103,7 +103,110 @@
             transition: all 0.2s;
             font-size: 0.9rem;
         }
+        /* ===== Add Student Page Upgrade CSS ===== */
 
+#addStudentPage .card h2{
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--accent), #f39c12);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+#studentForm{
+    display: grid;
+    gap: 1rem;
+}
+
+#studentForm .form-group{
+    margin-bottom: 0;
+}
+
+#studentForm label{
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 0.45rem;
+}
+
+#studentForm input{
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+#studentForm input:focus{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(230,126,34,0.18);
+}
+
+/* Days checkbox grid */
+.days-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 0.6rem;
+}
+
+.day-chip{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.7rem 0.5rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.day-chip input{
+    width: auto;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.day-chip:hover{
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* Submit button */
+#studentForm button[type="submit"]{
+    width: 100%;
+    padding: 0.95rem 1rem;
+    font-size: 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--accent), #f39c12);
+    box-shadow: 0 10px 20px rgba(230,126,34,0.18);
+}
+
+#studentForm button[type="submit"]:hover{
+    transform: translateY(-1px);
+}
+
+/* Students list card */
+#studentsListContainer .student-list-item{
+    border-radius: 1rem;
+}
+
+/* Mobile */
+@media (max-width: 640px){
+    .days-grid{
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #addStudentPage .card h2{
+        font-size: 1.3rem;
+    }
+}
         .nav-btn.active {
             background: var(--accent);
             color: white;
@@ -441,11 +544,41 @@
         <div class="card">
             <h2>➕ Register New Student</h2>
             <form id="studentForm">
-                <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" placeholder="Student Name" required></div>
-                <div class="form-group"><label>Class / Section</label><input type="text" id="studentClass" placeholder="Class 10 - Section A"></div>
-                <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" placeholder="+91 9876543210"></div>
-                <button type="submit">➕ Add to MongoDB</button>
-            </form>
+    <div class="form-group">
+        <label>Student Name *</label>
+        <input type="text" id="studentName" placeholder="Enter student name" required>
+    </div>
+
+    <div class="form-group">
+        <label>Branch</label>
+        <input type="text" id="studentBranch" placeholder="ECE / CSE / MECH">
+    </div>
+
+    <div class="form-group">
+        <label>Class</label>
+        <input type="text" id="studentClass" placeholder="2nd Year / Section A">
+    </div>
+
+    <div class="form-group">
+        <label>Working Days</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+            <label><input type="checkbox" value="M" class="dayCheck"> M</label>
+            <label><input type="checkbox" value="T" class="dayCheck"> T</label>
+            <label><input type="checkbox" value="W" class="dayCheck"> W</label>
+            <label><input type="checkbox" value="TH" class="dayCheck"> TH</label>
+            <label><input type="checkbox" value="F" class="dayCheck"> F</label>
+            <label><input type="checkbox" value="S" class="dayCheck"> S</label>
+            <label><input type="checkbox" value="SU" class="dayCheck"> S</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="+91 9876543210">
+    </div>
+
+    <button type="submit">➕ Add Student</button>
+</form>
         </div>
         <div class="card">
             <h3>📋 Students List</h3>
@@ -681,17 +814,20 @@
 
     // Event Listeners
     document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('studentName').value.trim();
-        if (!name) { alert("Name required"); return; }
-        if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) { alert("Student exists"); return; }
-        await addStudentToDB({
-            name: name,
-            class: document.getElementById('studentClass').value.trim() || "Not specified",
-            phone: document.getElementById('phone').value.trim()
-        });
-        document.getElementById('studentForm').reset();
+    e.preventDefault();
+
+    const days = [...document.querySelectorAll('.dayCheck:checked')].map(x => x.value);
+
+    await addStudentToDB({
+        name: document.getElementById('studentName').value.trim(),
+        branch: document.getElementById('studentBranch').value.trim(),
+        class: document.getElementById('studentClass').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        days: days
     });
+
+    document.getElementById('studentForm').reset();
+});
 
     document.getElementById('saveAttendanceBtn')?.addEventListener('click', async () => {
         await saveAttendanceToDB();
