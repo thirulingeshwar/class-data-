@@ -579,7 +579,21 @@
         const today = now.toISOString().slice(0, 10);
         const currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
         
-        students = []
+        students = [
+            { id: '1', name: 'Thirulingeshwar', branch: 'Computer Science', class: '3rd Year - Section A', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], phone: '9876543210', createdAt: now.toISOString() },
+            { id: '2', name: 'Ramesh Kumar', branch: 'Electronics', class: '3rd Year - Section B', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], phone: '9876543211', createdAt: now.toISOString() },
+            { id: '3', name: 'Priya Sharma', branch: 'Computer Science', class: '2nd Year - Section A', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], phone: '9876543212', createdAt: now.toISOString() },
+            { id: '4', name: 'Amit Singh', branch: 'Mechanical', class: '4th Year', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], phone: '9876543213', createdAt: now.toISOString() },
+            { id: '5', name: 'Sneha Reddy', branch: 'Computer Science', class: '1st Year', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], phone: '9876543214', createdAt: now.toISOString() },
+            { id: '6', name: 'Vikram Patil', branch: 'Civil', class: '2nd Year', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], phone: '9876543215', createdAt: now.toISOString() }
+        ];
+        
+        attendanceRecords = [
+            { id: 'r1', studentId: '1', studentName: 'Thirulingeshwar', branch: 'Computer Science', class: '3rd Year - Section A', date: today, time: currentTime, status: 'Present', timestamp: now.toISOString() },
+            { id: 'r2', studentId: '2', studentName: 'Ramesh Kumar', branch: 'Electronics', class: '3rd Year - Section B', date: today, time: currentTime, status: 'Present', timestamp: now.toISOString() },
+            { id: 'r3', studentId: '3', studentName: 'Priya Sharma', branch: 'Computer Science', class: '2nd Year - Section A', date: today, time: currentTime, status: 'Absent', timestamp: now.toISOString() },
+            { id: 'r4', studentId: '4', studentName: 'Amit Singh', branch: 'Mechanical', class: '4th Year', date: today, time: currentTime, status: 'Present', timestamp: now.toISOString() }
+        ];
     }
 
     function saveToLocal() {
