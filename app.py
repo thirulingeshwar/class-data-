@@ -87,7 +87,8 @@ def attendance():
                 "studentName": item["studentName"],
                 "class": item["class"],
                 "status": item["status"],
-                "date": now.strftime("%Y-%m-%d"),
+                "branch": data.get("branch", ""),
+                "days": data.get("days", []),
                 "time": now.strftime("%H:%M:%S")
             }
 
@@ -141,3 +142,4 @@ def export():
 # ==================================================
 if __name__ == "__main__":
     app.run(debug=True)
+    app = Flask(__name__)
