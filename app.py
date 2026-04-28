@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # ==================================================
 # FLASK APP
@@ -25,8 +26,7 @@ attendance_col = db.records
 print("MongoDB Connected Successfully 🚀")
 
 # ==================================================
-# FRONTEND ROUTE (serves index.html)
-# Put your index.html inside folder: static/index.html
+# FRONTEND ROUTE
 # ==================================================
 @app.route("/")
 def home():
@@ -43,7 +43,11 @@ def students():
         student = {
             "id": str(uuid.uuid4())[:8],
             "name": data.get("name", ""),
+            "branch": data.get("branch", ""),
             "class": data.get("class", ""),
+            "days": data.get("days", []),
+            "inTime": data.get("inTime", "09:00"),
+            "outTime": data.get("outTime", "17:00"),
             "phone": data.get("phone", ""),
             "created_at": datetime.now()
         }
@@ -80,22 +84,31 @@ def attendance():
         data = request.json
         records = data.get("attendance", [])
         now = datetime.now()
+        today_date = now.strftime("%Y-%m-%d")
 
         for item in records:
+            record_date = item.get("date", today_date)
+            record_id = item.get("id", str(uuid.uuid4())[:8])
+            
             record = {
+                "id": record_id,
                 "studentId": item["studentId"],
                 "studentName": item["studentName"],
-                "class": item["class"],
+                "class": item.get("class", ""),
+                "branch": item.get("branch", ""),
+                "days": item.get("days", []),
                 "status": item["status"],
-                "branch": data.get("branch", ""),
-                "days": data.get("days", []),
-                "time": now.strftime("%H:%M:%S")
+                "inTime": item.get("inTime", "09:00"),
+                "outTime": item.get("outTime", "17:00"),
+                "date": record_date,
+                "time": now.strftime("%H:%M:%S"),
+                "timestamp": now
             }
 
             attendance_col.update_one(
                 {
                     "studentId": item["studentId"],
-                    "date": record["date"]
+                    "date": record_date
                 },
                 {"$set": record},
                 upsert=True
@@ -104,7 +117,77 @@ def attendance():
         return jsonify({"message": "Attendance saved"}), 201
 
     all_records = list(attendance_col.find({}, {"_id": 0}))
+    all_records.sort(key=lambda x: x.get("date", ""), reverse=True)
     return jsonify(all_records)
+
+
+@app.route("/api/attendance/<record_id>", methods=["DELETE"])
+def delete_attendance(record_id):
+    try:
+        print(f"Attempting to delete record with id: {record_id}")
+        
+        result = attendance_col.delete_one({"id": record_id})
+        
+        if result.deleted_count == 0:
+            try:
+                result = attendance_col.delete_one({"_id": ObjectId(record_id)})
+            except:
+                pass
+        
+        if result.deleted_count > 0:
+            print(f"Successfully deleted record: {record_id}")
+            return jsonify({"message": "Attendance record deleted successfully"}), 200
+        else:
+            print(f"Record not found: {record_id}")
+            return jsonify({"message": "Record not found"}), 404
+            
+    except Exception as e:
+        print(f"Error deleting record: {str(e)}")
+        return jsonify({"message": f"Error deleting record: {str(e)}"}), 500
+
+
+@app.route("/api/attendance/<record_id>", methods=["PUT"])
+def update_attendance(record_id):
+    try:
+        data = request.json
+        print(f"Updating record {record_id} with data: {data}")
+        
+        update_data = {}
+        if "status" in data:
+            update_data["status"] = data["status"]
+        if "inTime" in data:
+            update_data["inTime"] = data["inTime"]
+        if "outTime" in data:
+            update_data["outTime"] = data["outTime"]
+        if "date" in data:
+            update_data["date"] = data["date"]
+        
+        update_data["updated_at"] = datetime.now()
+        
+        result = attendance_col.update_one(
+            {"id": record_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            try:
+                result = attendance_col.update_one(
+                    {"_id": ObjectId(record_id)},
+                    {"$set": update_data}
+                )
+            except:
+                pass
+        
+        if result.matched_count > 0:
+            print(f"Successfully updated record: {record_id}")
+            return jsonify({"message": "Attendance updated successfully"}), 200
+        else:
+            print(f"Record not found for update: {record_id}")
+            return jsonify({"message": "Record not found"}), 404
+            
+    except Exception as e:
+        print(f"Error updating record: {str(e)}")
+        return jsonify({"message": f"Error updating record: {str(e)}"}), 500
 
 
 # ==================================================
@@ -122,7 +205,7 @@ def stats():
     return jsonify({
         "totalStudents": total_students,
         "todayTotal": len(today_records),
-        "todayPresent": len([r for r in today_records if r["status"] == "Present"]),
+        "todayPresent": len([r for r in today_records if r.get("status") == "Present"]),
         "totalRecords": total_records,
         "totalPresent": total_present
     })
@@ -142,4 +225,3 @@ def export():
 # ==================================================
 if __name__ == "__main__":
     app.run(debug=True)
-    app = Flask(__name__)
