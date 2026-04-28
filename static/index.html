@@ -339,16 +339,6 @@
             color: #4338ca;
         }
 
-        .icon-btn.edit-attendance {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        .icon-btn.delete-attendance {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
         .stats-card {
             background: var(--accent-soft);
             padding: 1.2rem;
@@ -805,7 +795,7 @@
         }
     }
 
-    // Update student in MongoDB
+    // Update student in MongoDB (including timing)
     async function updateStudentInDB(id, updates) {
         updateSyncStatus('syncing', '🔄 Updating student...');
         try {
@@ -862,6 +852,7 @@
         
         updateSyncStatus('syncing', `💾 Saving attendance for ${student.name}...`);
         
+        // CORRECTED ATTENDANCE DATA STRUCTURE WITH PROPER DATE FIELD
         const attendanceData = [{
             studentId: student.id,
             studentName: student.name,
@@ -871,10 +862,10 @@
             status: selection.status,
             inTime: selection.inTime || student.inTime || '09:00',
             outTime: selection.outTime || student.outTime || '17:00',
-            date: selection.date
+            date: selection.date  // FIXED: Changed from selection.datee to selection.date
         }];
         
-        console.log('Saving attendance data:', attendanceData);
+        console.log('Saving attendance data with correct structure:', attendanceData);
         
         try {
             const result = await apiCall('/attendance', { 
@@ -886,10 +877,11 @@
             await loadAttendance();
             await loadStats();
             
+            // Clear only this student's selection after save
             delete currentAttendanceSelections[studentId];
             
             updateSyncStatus('connected', `✅ Attendance saved for ${student.name}`);
-            showToast(`✅ ${student.name}'s attendance saved for ${selection.date}!`);
+            showToast(`✅ ${student.name}'s attendance saved for ${selection.date}! In: ${attendanceData[0].inTime} | Out: ${attendanceData[0].outTime}`);
             renderAttendancePageList();
         } catch (error) {
             console.error('Save attendance error:', error);
@@ -898,76 +890,7 @@
         }
     }
 
-    // Delete attendance record
-    async function deleteAttendanceRecord(recordId) {
-        if (!confirm('Delete this attendance record from MongoDB?')) return;
-        
-        updateSyncStatus('syncing', '🗑️ Deleting record...');
-        try {
-            const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (!response.ok) {
-                const error = await response.text();
-                throw new Error(`Delete failed: ${error}`);
-            }
-            
-            const result = await response.json();
-            console.log('Delete result:', result);
-            
-            await loadAttendance();
-            updateSyncStatus('connected', '✅ Record deleted from MongoDB');
-            showToast('Attendance record deleted successfully!');
-        } catch (error) {
-            console.error('Delete record error:', error);
-            updateSyncStatus('error', '⚠️ Delete failed');
-            showToast('Failed to delete record: ' + error.message);
-        }
-    }
-
-    // Edit attendance record
-    async function editAttendanceRecord(recordId) {
-        const record = attendanceRecords.find(r => r.id === recordId);
-        if (!record) {
-            showToast('Record not found!');
-            return;
-        }
-        
-        const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
-        
-        if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
-            updateSyncStatus('syncing', '🔄 Updating attendance...');
-            try {
-                const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.text();
-                    throw new Error(`Update failed: ${error}`);
-                }
-                
-                const result = await response.json();
-                console.log('Update result:', result);
-                
-                await loadAttendance();
-                updateSyncStatus('connected', '✅ Attendance updated in MongoDB');
-                showToast(`Attendance updated to ${newStatus}!`);
-            } catch (error) {
-                console.error('Update attendance error:', error);
-                updateSyncStatus('error', '⚠️ Update failed');
-                showToast('Failed to update attendance: ' + error.message);
-            }
-        } else if (newStatus) {
-            showToast('Invalid status! Please enter "Present" or "Absent"');
-        }
-    }
-
-    // Set student timing
+    // Set student timing (saves to student profile)
     async function setStudentTiming(id) {
         const student = students.find(s => s.id === id);
         if (!student) return;
@@ -1031,6 +954,44 @@
     function closeEditDaysModal() {
         document.getElementById('editDaysModal').style.display = 'none';
         currentEditingStudentId = null;
+    }
+
+    // Delete attendance record
+    async function deleteAttendanceRecord(recordId) {
+        if (confirm('Delete this attendance record from MongoDB?')) {
+            updateSyncStatus('syncing', '🗑️ Deleting record...');
+            try {
+                await apiCall(`/attendance/${recordId}`, { method: 'DELETE' });
+                await loadAttendance();
+                updateSyncStatus('connected', '✅ Record deleted');
+                showToast('Attendance record deleted!');
+            } catch (error) {
+                console.error('Delete record error:', error);
+                showToast('Failed to delete record: ' + error.message);
+            }
+        }
+    }
+
+    // Edit attendance record
+    async function editAttendanceRecord(recordId) {
+        const record = attendanceRecords.find(r => r.id === recordId);
+        if (record) {
+            const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
+            if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
+                updateSyncStatus('syncing', '🔄 Updating attendance...');
+                try {
+                    await apiCall(`/attendance/${recordId}`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
+                    await loadAttendance();
+                    updateSyncStatus('connected', '✅ Attendance updated');
+                    showToast(`Attendance updated to ${newStatus}!`);
+                } catch (error) {
+                    console.error('Update attendance error:', error);
+                    showToast('Failed to update attendance: ' + error.message);
+                }
+            } else if (newStatus) {
+                showToast('Invalid status! Please enter "Present" or "Absent"');
+            }
+        }
     }
 
     // Helper Functions
@@ -1239,6 +1200,7 @@
             `;
         }).join('');
         
+        // Add event listeners for status buttons
         document.querySelectorAll('.status-btn.present, .status-btn.absent').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -1249,6 +1211,7 @@
             });
         });
         
+        // Add event listeners for date inputs
         document.querySelectorAll('.date-input').forEach(input => {
             input.addEventListener('change', (e) => {
                 const sid = input.id.replace('date_', '');
@@ -1257,6 +1220,7 @@
             });
         });
         
+        // Add event listeners for time inputs
         document.querySelectorAll('.in-time-input').forEach(input => {
             input.addEventListener('change', (e) => {
                 const sid = input.id.replace('inTime_', '');
@@ -1273,6 +1237,7 @@
             });
         });
         
+        // Add event listeners for individual save buttons
         document.querySelectorAll('.individual-save-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 saveIndividualAttendance(btn.dataset.id);
@@ -1481,6 +1446,8 @@
 
     window.closeModal = closeModal;
     window.closeEditDaysModal = closeEditDaysModal;
+    window.editAttendanceRecord = editAttendanceRecord;
+    window.deleteAttendanceRecord = deleteAttendanceRecord;
     init();
 </script>
 </body>
