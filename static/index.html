@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Thirulingeshwar Class | MongoDB Attendance with In/Out Timing</title>
+    <title>Thirulingeshwar Class | Complete Attendance System</title>
     <style>
         * {
             margin: 0;
@@ -334,6 +334,21 @@
             color: #065f46;
         }
 
+        .icon-btn.edit-days {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .icon-btn.edit-attendance {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .icon-btn.delete-attendance {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         .stats-card {
             background: var(--accent-soft);
             padding: 1.2rem;
@@ -362,13 +377,123 @@
             transition: width 0.3s ease;
         }
 
-        .attendance-option-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
+        .attendance-card {
+            background: var(--surface-2);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .attendance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .attendance-status-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .status-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: 0.1s;
+            transition: all 0.2s;
+        }
+
+        .status-btn.present {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-btn.present:hover {
+            background: #219a52;
+            transform: scale(1.02);
+        }
+
+        .status-btn.absent {
+            background: var(--danger);
+            color: white;
+        }
+
+        .status-btn.absent:hover {
+            background: #c0392b;
+            transform: scale(1.02);
+        }
+
+        .status-btn.selected {
+            box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--success);
+        }
+
+        .status-btn.present.selected {
+            background: #1e8449;
+        }
+
+        .status-btn.absent.selected {
+            background: #a93226;
+        }
+
+        .timing-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed var(--border);
+        }
+
+        .timing-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timing-input label {
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+
+        .timing-input input {
+            width: 120px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        .attendance-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .attendance-status.present {
+            background: #27ae60;
+            color: white;
+        }
+
+        .attendance-status.absent {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .individual-save-btn {
+            background: linear-gradient(135deg, var(--success), #219a52);
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .individual-save-btn:hover {
+            background: linear-gradient(135deg, #219a52, #1e8449);
         }
 
         .welcome-banner {
@@ -431,20 +556,6 @@
             font-weight: 600;
         }
 
-        .timing-panel {
-            background: var(--accent-soft);
-            padding: 0.8rem;
-            border-radius: 0.8rem;
-            margin-top: 0.5rem;
-        }
-
-        .in-out-status {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
         @media (max-width: 640px) {
             body { padding: 0.75rem; }
             .top-bar { flex-direction: column; align-items: stretch; text-align: center; }
@@ -452,6 +563,10 @@
             .card { padding: 1rem; }
             .stats-number { font-size: 1.5rem; }
             .days-grid { grid-template-columns: repeat(4, 1fr); }
+            .attendance-header { flex-direction: column; align-items: stretch; }
+            .attendance-status-buttons { justify-content: center; }
+            .timing-section { flex-direction: column; }
+            .timing-input { justify-content: space-between; }
         }
     </style>
 </head>
@@ -466,7 +581,7 @@
     <div class="top-bar">
         <div class="logo">
             <h1>📖 Thirulingeshwar Class Attendance</h1>
-            <p>MongoDB Cloud | Complete Student Management with In/Out Timing</p>
+            <p>Complete Student Management with In/Out Timing</p>
         </div>
         <div class="nav-links">
             <button class="nav-btn" data-page="dashboard">📊 Dashboard</button>
@@ -483,7 +598,7 @@
     <div id="dashboardPage" class="page">
         <div class="welcome-banner">
             <h2>🙏 Namaste, Welcome to Thirulingeshwar Class</h2>
-            <p>MongoDB Cloud Sync | Track students with Name, Branch, Class, Working Days, Phone & In/Out Timing</p>
+            <p>Individual Attendance | Each student can have custom date, time, and status</p>
         </div>
         <div class="card">
             <h2>📈 Attendance Overview</h2>
@@ -523,7 +638,7 @@
                 </div>
                 <div class="form-group">
                     <label>Working Days</label>
-                    <div class="days-grid">
+                    <div class="days-grid" id="workingDaysGrid">
                         <label class="day-checkbox"><input type="checkbox" value="Monday"> Mon</label>
                         <label class="day-checkbox"><input type="checkbox" value="Tuesday"> Tue</label>
                         <label class="day-checkbox"><input type="checkbox" value="Wednesday"> Wed</label>
@@ -534,16 +649,16 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="phone" placeholder="+91 9876543210">
-                </div>
-                <div class="form-group">
-                    <label>Default In Time (Optional)</label>
+                    <label>Default In Time</label>
                     <input type="time" id="defaultInTime" value="09:00">
                 </div>
                 <div class="form-group">
-                    <label>Default Out Time (Optional)</label>
+                    <label>Default Out Time</label>
                     <input type="time" id="defaultOutTime" value="17:00">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" placeholder="+91 9876543210">
                 </div>
                 <button type="submit">💾 Save to MongoDB</button>
             </form>
@@ -557,11 +672,13 @@
 
     <div id="attendancePage" class="page">
         <div class="card">
-            <h2>✅ Mark Today's Attendance with In/Out Timing</h2>
-            <p>📅 Date: <strong id="currentDateDisplay"></strong> | 🕒 Current Time: <strong id="currentTimeDisplay"></strong></p>
-            <div class="search-bar"><input type="text" id="attendanceSearch" placeholder="Filter students"></div>
+            <h2>✅ Individual Student Attendance Marking</h2>
+            <p style="margin-bottom: 1rem;">💡 Each student can have their own <strong>Date, In Time, Out Time, and Status</strong> - Save individually</p>
+            
+            <div class="search-bar">
+                <input type="text" id="attendanceSearch" placeholder="🔍 Filter students by name, branch, or class">
+            </div>
             <div id="studentsAttendanceList"></div>
-            <button id="saveAttendanceBtn" style="margin-top: 1rem; width: 100%;">💾 Save Attendance to MongoDB</button>
         </div>
     </div>
 
@@ -569,7 +686,7 @@
         <div class="card">
             <h2>📋 Complete Attendance History</h2>
             <div class="search-bar">
-                <input type="text" id="recordsSearchInput" placeholder="Search by name, branch, or class">
+                <input type="text" id="recordsSearchInput" placeholder="Search by name, branch, class, or date">
                 <button id="clearSearchRecords" class="btn-outline">Clear</button>
             </div>
             <div id="allRecordsContainer"></div>
@@ -588,14 +705,27 @@
     </div>
 </div>
 
+<!-- Edit Working Days Modal -->
+<div id="editDaysModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1002; justify-content:center; align-items:center;">
+    <div style="background: var(--surface); border-radius:1rem; padding:2rem; max-width:500px; width:90%;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+            <h3>✏️ Edit Working Days</h3>
+            <span style="cursor:pointer; font-size:1.5rem;" onclick="closeEditDaysModal()">&times;</span>
+        </div>
+        <div id="editDaysContent"></div>
+        <button id="saveEditedDaysBtn" style="margin-top:1rem; width:100%;">💾 Save Changes</button>
+    </div>
+</div>
+
 <script>
-    // API Configuration - Works with your Flask backend
+    // API Configuration
     const API_BASE = '/api';
     
     // Local cache for data
     let students = [];
     let attendanceRecords = [];
     let currentAttendanceSelections = {};
+    let currentEditingStudentId = null;
 
     // Helper function for API calls
     async function apiCall(endpoint, options = {}) {
@@ -604,7 +734,10 @@
                 ...options,
                 headers: { 'Content-Type': 'application/json', ...options.headers }
             });
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API error: ${response.status} - ${errorText}`);
+            }
             return await response.json();
         } catch (error) {
             console.error('API Error:', error);
@@ -618,11 +751,12 @@
         updateSyncStatus('syncing', '🔄 Loading students...');
         try {
             const data = await apiCall('/students');
-            students = data;
+            students = data || [];
             updateSyncStatus('connected', `✅ ${students.length} students loaded`);
             renderAll();
-            return data;
+            return students;
         } catch (error) {
+            console.error('Load students error:', error);
             students = [];
             renderAll();
             return [];
@@ -633,10 +767,11 @@
     async function loadAttendance() {
         try {
             const data = await apiCall('/attendance');
-            attendanceRecords = data;
+            attendanceRecords = data || [];
             renderAll();
-            return data;
+            return attendanceRecords;
         } catch (error) {
+            console.error('Load attendance error:', error);
             attendanceRecords = [];
             renderAll();
             return [];
@@ -650,21 +785,23 @@
             updateDashboardStats(stats);
             return stats;
         } catch (error) {
-            console.error('Failed to load stats');
+            console.error('Failed to load stats:', error);
         }
     }
 
-    // Add student to MongoDB
+    // Add student to MongoDB with timing
     async function addStudentToDB(student) {
         updateSyncStatus('syncing', '💾 Saving student...');
         try {
-            await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
+            const result = await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
+            console.log('Add student result:', result);
             await loadStudents();
             updateSyncStatus('connected', '✅ Student saved to MongoDB');
             showToast(`✅ Student "${student.name}" added successfully!`);
         } catch (error) {
+            console.error('Add student error:', error);
             updateSyncStatus('error', '⚠️ Failed to save');
-            showToast('Failed to add student');
+            showToast('Failed to add student: ' + error.message);
         }
     }
 
@@ -672,13 +809,15 @@
     async function updateStudentInDB(id, updates) {
         updateSyncStatus('syncing', '🔄 Updating student...');
         try {
-            await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+            const result = await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+            console.log('Update student result:', result);
             await loadStudents();
             updateSyncStatus('connected', '✅ Student updated');
             showToast('Student updated successfully!');
         } catch (error) {
+            console.error('Update student error:', error);
             updateSyncStatus('error', '⚠️ Update failed');
-            showToast('Failed to update student');
+            showToast('Failed to update student: ' + error.message);
         }
     }
 
@@ -689,53 +828,142 @@
         
         updateSyncStatus('syncing', '🗑️ Deleting student...');
         try {
-            await apiCall(`/students/${id}`, { method: 'DELETE' });
+            const result = await apiCall(`/students/${id}`, { method: 'DELETE' });
+            console.log('Delete student result:', result);
             await loadStudents();
             await loadAttendance();
             updateSyncStatus('connected', '✅ Student deleted');
             showToast(`Student "${student?.name}" deleted!`);
         } catch (error) {
+            console.error('Delete student error:', error);
             updateSyncStatus('error', '⚠️ Delete failed');
-            showToast('Failed to delete student');
+            showToast('Failed to delete student: ' + error.message);
         }
     }
 
-    // Save attendance to MongoDB with In/Out timing
-    async function saveAttendanceToDB() {
-        const todayDate = new Date().toISOString().slice(0, 10);
-        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
-        
-        updateSyncStatus('syncing', '💾 Saving attendance...');
-        let attendanceData = [];
-        
-        for (let student of students) {
-            const selection = currentAttendanceSelections[student.id];
-            if (!selection || !selection.status) continue;
-            
-            attendanceData.push({
-                studentId: student.id,
-                studentName: student.name,
-                class: student.class,
-                status: selection.status,
-                inTime: selection.inTime || student.inTime || '09:00',
-                outTime: selection.outTime || student.outTime || '17:00',
-                branch: student.branch,
-                days: student.days || [],
-                date: todayDate
-            });
+    // Save individual student attendance to MongoDB
+    async function saveIndividualAttendance(studentId) {
+        const student = students.find(s => s.id === studentId);
+        if (!student) {
+            showToast(`❌ Student not found!`);
+            return;
         }
         
+        const selection = currentAttendanceSelections[studentId];
+        if (!selection || !selection.status) {
+            showToast(`❌ Please select Present/Absent for ${student.name}`);
+            return;
+        }
+        
+        if (!selection.date) {
+            showToast(`❌ Please select a date for ${student.name}`);
+            return;
+        }
+        
+        updateSyncStatus('syncing', `💾 Saving attendance for ${student.name}...`);
+        
+        const attendanceData = [{
+            studentId: student.id,
+            studentName: student.name,
+            class: student.class || '',
+            branch: student.branch || '',
+            days: student.days || [],
+            status: selection.status,
+            inTime: selection.inTime || student.inTime || '09:00',
+            outTime: selection.outTime || student.outTime || '17:00',
+            date: selection.date
+        }];
+        
+        console.log('Saving attendance data:', attendanceData);
+        
         try {
-            await apiCall('/attendance', { method: 'POST', body: JSON.stringify({ attendance: attendanceData }) });
+            const result = await apiCall('/attendance', { 
+                method: 'POST', 
+                body: JSON.stringify({ attendance: attendanceData }) 
+            });
+            console.log('Save attendance result:', result);
+            
             await loadAttendance();
             await loadStats();
-            currentAttendanceSelections = {};
-            renderAll();
-            updateSyncStatus('connected', '✅ Attendance saved to MongoDB');
-            showToast(`Attendance saved to MongoDB!`);
+            
+            delete currentAttendanceSelections[studentId];
+            
+            updateSyncStatus('connected', `✅ Attendance saved for ${student.name}`);
+            showToast(`✅ ${student.name}'s attendance saved for ${selection.date}!`);
+            renderAttendancePageList();
         } catch (error) {
+            console.error('Save attendance error:', error);
             updateSyncStatus('error', '⚠️ Save failed');
-            showToast('Failed to save attendance');
+            showToast(`Failed to save attendance for ${student.name}: ${error.message}`);
+        }
+    }
+
+    // Delete attendance record
+    async function deleteAttendanceRecord(recordId) {
+        if (!confirm('Delete this attendance record from MongoDB?')) return;
+        
+        updateSyncStatus('syncing', '🗑️ Deleting record...');
+        try {
+            const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Delete failed: ${error}`);
+            }
+            
+            const result = await response.json();
+            console.log('Delete result:', result);
+            
+            await loadAttendance();
+            updateSyncStatus('connected', '✅ Record deleted from MongoDB');
+            showToast('Attendance record deleted successfully!');
+        } catch (error) {
+            console.error('Delete record error:', error);
+            updateSyncStatus('error', '⚠️ Delete failed');
+            showToast('Failed to delete record: ' + error.message);
+        }
+    }
+
+    // Edit attendance record
+    async function editAttendanceRecord(recordId) {
+        const record = attendanceRecords.find(r => r.id === recordId);
+        if (!record) {
+            showToast('Record not found!');
+            return;
+        }
+        
+        const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
+        
+        if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
+            updateSyncStatus('syncing', '🔄 Updating attendance...');
+            try {
+                const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Update failed: ${error}`);
+                }
+                
+                const result = await response.json();
+                console.log('Update result:', result);
+                
+                await loadAttendance();
+                updateSyncStatus('connected', '✅ Attendance updated in MongoDB');
+                showToast(`Attendance updated to ${newStatus}!`);
+            } catch (error) {
+                console.error('Update attendance error:', error);
+                updateSyncStatus('error', '⚠️ Update failed');
+                showToast('Failed to update attendance: ' + error.message);
+            }
+        } else if (newStatus) {
+            showToast('Invalid status! Please enter "Present" or "Absent"');
         }
     }
 
@@ -744,10 +972,11 @@
         const student = students.find(s => s.id === id);
         if (!student) return;
         
-        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+        const currentInTime = student.inTime || '09:00';
+        const currentOutTime = student.outTime || '17:00';
         
-        const inTime = prompt(`Set INCOMING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent time: ${currentTime}`, student.inTime || '09:00');
-        const outTime = prompt(`Set OUTGOING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent time: ${currentTime}`, student.outTime || '17:00');
+        const inTime = prompt(`Set INCOMING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent In Time: ${currentInTime}`, currentInTime);
+        const outTime = prompt(`Set OUTGOING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent Out Time: ${currentOutTime}`, currentOutTime);
         
         const updates = {};
         if (inTime && inTime.trim()) updates.inTime = inTime.trim();
@@ -755,44 +984,53 @@
         
         if (Object.keys(updates).length > 0) {
             await updateStudentInDB(id, updates);
-            showToast(`Timing updated for ${student.name}`);
+            showToast(`Timing saved for ${student.name}: In ${updates.inTime || currentInTime} | Out ${updates.outTime || currentOutTime}`);
         }
     }
 
-    // Delete attendance record
-    async function deleteAttendanceRecord(recordId) {
-        if (confirm('Delete this attendance record from MongoDB?')) {
-            updateSyncStatus('syncing', '🗑️ Deleting record...');
-            try {
-                await apiCall(`/attendance/${recordId}`, { method: 'DELETE' });
-                await loadAttendance();
-                updateSyncStatus('connected', '✅ Record deleted');
-                showToast('Attendance record deleted!');
-            } catch (error) {
-                showToast('Failed to delete record');
-            }
-        }
+    // Edit Working Days
+    function editWorkingDays(id) {
+        const student = students.find(s => s.id === id);
+        if (!student) return;
+        
+        currentEditingStudentId = id;
+        const currentDays = student.days || [];
+        
+        const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const daysShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        
+        let html = '<div class="days-grid">';
+        daysList.forEach((day, index) => {
+            const isChecked = currentDays.includes(day);
+            html += `
+                <label class="day-checkbox" style="cursor:pointer;">
+                    <input type="checkbox" value="${day}" ${isChecked ? 'checked' : ''}> 
+                    ${daysShort[index]}
+                </label>
+            `;
+        });
+        html += '</div>';
+        
+        document.getElementById('editDaysContent').innerHTML = html;
+        document.getElementById('editDaysModal').style.display = 'flex';
     }
 
-    // Edit attendance record
-    async function editAttendanceRecord(recordId) {
-        const record = attendanceRecords.find(r => r.id === recordId);
-        if (record) {
-            const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
-            if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
-                updateSyncStatus('syncing', '🔄 Updating attendance...');
-                try {
-                    await apiCall(`/attendance/${recordId}`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
-                    await loadAttendance();
-                    updateSyncStatus('connected', '✅ Attendance updated');
-                    showToast(`Attendance updated to ${newStatus}!`);
-                } catch (error) {
-                    showToast('Failed to update attendance');
-                }
-            } else if (newStatus) {
-                showToast('Invalid status! Please enter "Present" or "Absent"');
-            }
-        }
+    async function saveEditedDays() {
+        if (!currentEditingStudentId) return;
+        
+        const selectedDays = [];
+        document.querySelectorAll('#editDaysContent input[type="checkbox"]:checked').forEach(cb => {
+            selectedDays.push(cb.value);
+        });
+        
+        await updateStudentInDB(currentEditingStudentId, { days: selectedDays });
+        closeEditDaysModal();
+        showToast('Working days updated successfully!');
+    }
+
+    function closeEditDaysModal() {
+        document.getElementById('editDaysModal').style.display = 'none';
+        currentEditingStudentId = null;
     }
 
     // Helper Functions
@@ -829,7 +1067,7 @@
         if (!container) return;
         
         let filtered = students.filter(s => 
-            s.name.toLowerCase().includes(filter.toLowerCase()) ||
+            s.name && s.name.toLowerCase().includes(filter.toLowerCase()) ||
             (s.branch && s.branch.toLowerCase().includes(filter.toLowerCase())) ||
             (s.class && s.class.toLowerCase().includes(filter.toLowerCase()))
         );
@@ -845,16 +1083,17 @@
                     <h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
                     <p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p>
                     <p style="font-size:0.7rem; color:var(--text-secondary);">
-                        📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'All days'}
-                        ${s.inTime ? `<span class="timing-badge">🕐 Default In: ${s.inTime}</span>` : ''}
-                        ${s.outTime ? `<span class="timing-badge">🕔 Default Out: ${s.outTime}</span>` : ''}
+                        📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'Not set'}
+                        ${s.inTime ? `<span class="timing-badge">🕐 In: ${s.inTime}</span>` : ''}
+                        ${s.outTime ? `<span class="timing-badge">🕔 Out: ${s.outTime}</span>` : ''}
                     </p>
                 </div>
                 <div class="action-group">
                     <button class="icon-btn view-details" data-id="${s.id}">👁️ View</button>
                     <button class="icon-btn edit-student" data-id="${s.id}">✏️ Edit</button>
+                    <button class="icon-btn edit-days" data-id="${s.id}">📅 Edit Days</button>
+                    <button class="icon-btn set-timing" data-id="${s.id}">⏰ Set Timing</button>
                     <button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>
-                    <button class="icon-btn set-timing" data-id="${s.id}">⏰ Set In/Out</button>
                 </div>
             </div>
         `).join('');
@@ -876,16 +1115,24 @@
                     if (newClass !== null) updateStudentInDB(id, { class: newClass.trim() });
                     const newPhone = prompt("Edit Phone Number:", student.phone);
                     if (newPhone !== null) updateStudentInDB(id, { phone: newPhone.trim() });
+                    const newInTime = prompt("Edit In Time (HH:MM):", student.inTime || '09:00');
+                    if (newInTime !== null && newInTime.trim()) updateStudentInDB(id, { inTime: newInTime.trim() });
+                    const newOutTime = prompt("Edit Out Time (HH:MM):", student.outTime || '17:00');
+                    if (newOutTime !== null && newOutTime.trim()) updateStudentInDB(id, { outTime: newOutTime.trim() });
                 }
             });
         });
         
-        document.querySelectorAll('.delete-student').forEach(btn => {
-            btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id));
+        document.querySelectorAll('.edit-days').forEach(btn => {
+            btn.addEventListener('click', () => editWorkingDays(btn.dataset.id));
         });
         
         document.querySelectorAll('.set-timing').forEach(btn => {
             btn.addEventListener('click', () => setStudentTiming(btn.dataset.id));
+        });
+        
+        document.querySelectorAll('.delete-student').forEach(btn => {
+            btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id));
         });
     }
 
@@ -904,10 +1151,9 @@
                 <p><strong>🏢 Branch/Office:</strong> ${escapeHtml(student.branch || '—')}</p>
                 <p><strong>📚 Class:</strong> ${escapeHtml(student.class || '—')}</p>
                 <p><strong>📞 Phone:</strong> ${escapeHtml(student.phone || '—')}</p>
-                <p><strong>📅 Working Days:</strong> ${student.days && student.days.length ? student.days.join(', ') : 'All days'}</p>
+                <p><strong>📅 Working Days:</strong> ${student.days && student.days.length ? student.days.join(', ') : 'Not set'}</p>
                 <p><strong>🕐 Default In Time:</strong> ${student.inTime || 'Not set'}</p>
                 <p><strong>🕔 Default Out Time:</strong> ${student.outTime || 'Not set'}</p>
-                <p><strong>📅 Added on:</strong> ${student.created_at ? new Date(student.created_at).toLocaleString() : '—'}</p>
                 <hr>
                 <h3>📊 Attendance Summary</h3>
                 <p><strong>Total Records:</strong> ${studentRecords.length}</p>
@@ -925,43 +1171,89 @@
     function renderAttendancePageList() {
         const container = document.getElementById('studentsAttendanceList');
         if (!container) return;
+        
         const searchTerm = document.getElementById('attendanceSearch')?.value.toLowerCase() || "";
-        let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
+        let filtered = students.filter(s => 
+            s.name && s.name.toLowerCase().includes(searchTerm) ||
+            (s.branch && s.branch.toLowerCase().includes(searchTerm)) ||
+            (s.class && s.class.toLowerCase().includes(searchTerm))
+        );
         
         if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">No students found in MongoDB</div>`; 
+            container.innerHTML = `<div class="empty-state">📭 No students found matching "${searchTerm}"</div>`; 
             return; 
         }
         
         container.innerHTML = filtered.map(s => {
-            const selected = currentAttendanceSelections[s.id] || { status: "Present", inTime: s.inTime || '09:00', outTime: s.outTime || '17:00' };
+            const selection = currentAttendanceSelections[s.id] || { 
+                status: "Present", 
+                inTime: s.inTime || '09:00', 
+                outTime: s.outTime || '17:00',
+                date: new Date().toISOString().slice(0, 10)
+            };
+            const isPresentSelected = selection.status === 'Present';
+            const isAbsentSelected = selection.status === 'Absent';
+            
             return `
-                <div class="student-list-item">
-                    <div>
-                        <h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
-                        <p>📚 ${escapeHtml(s.class || '—')}</p>
-                        <div class="timing-panel">
-                            <label style="font-size:0.8rem;">⏰ In Time:</label>
-                            <input type="time" id="inTime_${s.id}" class="in-time-input" value="${selected.inTime || s.inTime || '09:00'}" style="width:100px; padding:0.3rem; margin-right:1rem;">
-                            <label style="font-size:0.8rem;">⏰ Out Time:</label>
-                            <input type="time" id="outTime_${s.id}" class="out-time-input" value="${selected.outTime || s.outTime || '17:00'}" style="width:100px; padding:0.3rem;">
+                <div class="attendance-card">
+                    <div class="attendance-header">
+                        <div>
+                            <h3>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h3>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
+                                📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}
+                            </p>
+                            <p style="font-size:0.7rem; color:var(--info); margin-top:0.25rem;">
+                                ⏰ Saved Timing: In ${s.inTime || 'Not set'} | Out ${s.outTime || 'Not set'}
+                            </p>
+                        </div>
+                        <div class="attendance-status-buttons">
+                            <button class="status-btn present ${isPresentSelected ? 'selected' : ''}" data-id="${s.id}" data-status="Present">
+                                ✅ Present
+                            </button>
+                            <button class="status-btn absent ${isAbsentSelected ? 'selected' : ''}" data-id="${s.id}" data-status="Absent">
+                                ❌ Absent
+                            </button>
                         </div>
                     </div>
-                    <div style="display:flex;gap:0.5rem;">
-                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Present" style="background:${selected.status === 'Present' ? '#27ae60' : 'var(--border)'};color:${selected.status === 'Present' ? 'white' : 'var(--text-primary)'}">✅ Present</button>
-                        <button class="attendance-option-btn" data-sid="${s.id}" data-status="Absent" style="background:${selected.status === 'Absent' ? '#e74c3c' : 'var(--border)'};color:${selected.status === 'Absent' ? 'white' : 'var(--text-primary)'}">❌ Absent</button>
+                    <div class="timing-section">
+                        <div class="timing-input">
+                            <label>📅 Date:</label>
+                            <input type="date" id="date_${s.id}" class="date-input" value="${selection.date}">
+                        </div>
+                        <div class="timing-input">
+                            <label>🕐 In Time:</label>
+                            <input type="time" id="inTime_${s.id}" class="in-time-input" value="${selection.inTime || s.inTime || '09:00'}">
+                        </div>
+                        <div class="timing-input">
+                            <label>🕔 Out Time:</label>
+                            <input type="time" id="outTime_${s.id}" class="out-time-input" value="${selection.outTime || s.outTime || '17:00'}">
+                        </div>
+                        <div class="timing-input">
+                            <span class="attendance-status ${selection.status.toLowerCase()}">${selection.status}</span>
+                        </div>
                     </div>
+                    <button class="individual-save-btn" data-id="${s.id}">
+                        💾 Save ${escapeHtml(s.name)}'s Attendance (${selection.date})
+                    </button>
                 </div>
             `;
         }).join('');
         
-        document.querySelectorAll('.attendance-option-btn').forEach(btn => {
+        document.querySelectorAll('.status-btn.present, .status-btn.absent').forEach(btn => {
             btn.addEventListener('click', () => {
-                const sid = btn.dataset.sid;
+                const id = btn.dataset.id;
                 const status = btn.dataset.status;
-                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
-                currentAttendanceSelections[sid].status = status;
+                if (!currentAttendanceSelections[id]) currentAttendanceSelections[id] = {};
+                currentAttendanceSelections[id].status = status;
                 renderAttendancePageList();
+            });
+        });
+        
+        document.querySelectorAll('.date-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const sid = input.id.replace('date_', '');
+                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
+                currentAttendanceSelections[sid].date = e.target.value;
             });
         });
         
@@ -980,6 +1272,12 @@
                 currentAttendanceSelections[sid].outTime = e.target.value;
             });
         });
+        
+        document.querySelectorAll('.individual-save-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                saveIndividualAttendance(btn.dataset.id);
+            });
+        });
     }
 
     function renderRecordsPage(filter = "") {
@@ -989,9 +1287,10 @@
         let records = [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
         if (filter) {
             records = records.filter(r => 
-                r.studentName.toLowerCase().includes(filter.toLowerCase()) ||
+                (r.studentName && r.studentName.toLowerCase().includes(filter.toLowerCase())) ||
                 (r.branch && r.branch.toLowerCase().includes(filter.toLowerCase())) ||
-                (r.class && r.class.toLowerCase().includes(filter.toLowerCase()))
+                (r.class && r.class.toLowerCase().includes(filter.toLowerCase())) ||
+                (r.date && r.date.includes(filter))
             );
         }
         
@@ -1004,11 +1303,12 @@
             <div class="record-item">
                 <div>
                     <h4>🙏 ${escapeHtml(rec.studentName)} <span class="branch-badge">${escapeHtml(rec.branch || '—')}</span></h4>
-                    <p>📚 ${escapeHtml(rec.class || '—')} | 📅 ${rec.date}</p>
-                    <div class="in-out-status">
+                    <p>📚 ${escapeHtml(rec.class || '—')}</p>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.3rem; flex-wrap: wrap;">
+                        <span>📅 Date: <strong>${rec.date}</strong></span>
                         <span class="in-time">🟢 In: ${rec.inTime || rec.time || '—'}</span>
                         <span class="out-time">🔴 Out: ${rec.outTime || '—'}</span>
-                        <span>📝 Marked: ${rec.time}</span>
+                        <span>📝 Recorded: ${rec.time}</span>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -1031,28 +1331,29 @@
     function updateDashboardStats(stats) {
         if (!stats) return;
         document.getElementById('totalStudentsCount').innerText = stats.totalStudents || 0;
-        document.getElementById('todayAttendanceCount').innerHTML = stats.todayTotal ? `${stats.todayPresent} / ${stats.todayTotal}` : "0 / 0";
-        let percentToday = stats.todayTotal ? (stats.todayPresent / stats.todayTotal * 100).toFixed(1) : 0;
+        
+        const today = new Date().toISOString().slice(0, 10);
+        const todayRecords = attendanceRecords.filter(r => r.date === today);
+        const presentToday = todayRecords.filter(r => r.status === "Present").length;
+        
+        document.getElementById('todayAttendanceCount').innerHTML = todayRecords.length ? `${presentToday} / ${todayRecords.length}` : "0 / 0";
+        let percentToday = todayRecords.length ? (presentToday / todayRecords.length * 100).toFixed(1) : 0;
         document.getElementById('todayPercentage').innerHTML = `${percentToday}% present`;
-        let percentOverall = stats.totalRecords ? (stats.totalPresent / stats.totalRecords * 100).toFixed(1) : 0;
-        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${stats.totalPresent}/${stats.totalRecords})`;
+        
+        const totalPresent = attendanceRecords.filter(r => r.status === "Present").length;
+        const percentOverall = attendanceRecords.length ? (totalPresent / attendanceRecords.length * 100).toFixed(1) : 0;
+        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${totalPresent}/${attendanceRecords.length})`;
         document.getElementById('overallProgressBar').style.width = `${percentOverall}%`;
         
-        const recent = attendanceRecords.slice(-5).reverse();
+        const recent = [...attendanceRecords].sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date)).slice(-5).reverse();
         const recentDiv = document.getElementById('recentAttendanceList');
         if (recentDiv) {
             recentDiv.innerHTML = recent.map(r => `
                 <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                    📌 ${r.studentName} (${r.branch || '—'}) - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
+                    📌 ${r.studentName} - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
                 </div>
             `).join('') || "<div class='empty-state'>No records in MongoDB</div>";
         }
-    }
-
-    function updateCurrentTime() {
-        const now = new Date();
-        document.getElementById('currentDateDisplay').innerText = now.toLocaleDateString();
-        document.getElementById('currentTimeDisplay').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' });
     }
 
     function renderAll() {
@@ -1071,35 +1372,44 @@
         e.preventDefault();
         const name = document.getElementById('studentName').value.trim();
         if (!name) { alert("Name required"); return; }
-        if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) { alert("Student already exists"); return; }
+        if (students.some(s => s.name && s.name.toLowerCase() === name.toLowerCase())) { alert("Student already exists"); return; }
         
-        const days = [...document.querySelectorAll('.day-checkbox input:checked')].map(cb => cb.value);
+        const days = [];
+        document.querySelectorAll('#workingDaysGrid input[type="checkbox"]:checked').forEach(cb => {
+            days.push(cb.value);
+        });
+        
+        const inTime = document.getElementById('defaultInTime').value;
+        const outTime = document.getElementById('defaultOutTime').value;
         
         await addStudentToDB({
             name: name,
             branch: document.getElementById('studentBranch').value.trim(),
             class: document.getElementById('studentClass').value.trim(),
             days: days,
-            phone: document.getElementById('phone').value.trim(),
-            inTime: document.getElementById('defaultInTime').value,
-            outTime: document.getElementById('defaultOutTime').value
+            inTime: inTime,
+            outTime: outTime,
+            phone: document.getElementById('phone').value.trim()
         });
         document.getElementById('studentForm').reset();
-        document.querySelectorAll('.day-checkbox input').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#workingDaysGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('defaultInTime').value = '09:00';
+        document.getElementById('defaultOutTime').value = '17:00';
     });
 
-    document.getElementById('saveAttendanceBtn')?.addEventListener('click', saveAttendanceToDB);
     document.getElementById('refreshDataBtn')?.addEventListener('click', async () => { 
         await Promise.all([loadStudents(), loadAttendance()]);
         showToast("Data refreshed from MongoDB"); 
     });
     
+    document.getElementById('saveEditedDaysBtn')?.addEventListener('click', saveEditedDays);
+    
     document.getElementById('exportCSVBtn')?.addEventListener('click', () => {
-        let csv = "Student Name,Branch/Office,Class,Working Days,Phone,Date,Time,In Time,Out Time,Status\n";
+        let csv = "Student Name,Branch/Office,Class,Working Days,Default In Time,Default Out Time,Phone,Attendance Date,Attendance In Time,Attendance Out Time,Status\n";
         attendanceRecords.forEach(r => { 
             const student = students.find(s => s.id === r.studentId);
             const workingDays = student?.days?.join('; ') || '';
-            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${workingDays}","${student?.phone || ''}","${r.date}","${r.time}","${r.inTime || ''}","${r.outTime || ''}","${r.status}"\n`; 
+            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${workingDays}","${student?.inTime || ''}","${student?.outTime || ''}","${student?.phone || ''}","${r.date}","${r.inTime || ''}","${r.outTime || ''}","${r.status}"\n`; 
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
@@ -1114,14 +1424,13 @@
             <body><h2>Thirulingeshwar Class - Complete Attendance Report</h2>
             <p>Generated: ${new Date().toLocaleString()}</p>
             <p>Total Students: ${students.length} | Total Records: ${attendanceRecords.length}</p>
-            <table border="1"><tr><th>Student Name</th><th>Branch/Office</th><th>Class</th><th>Working Days</th><th>Phone</th><th>Date</th><th>Time</th><th>In Time</th><th>Out Time</th><th>Status</th></tr>`;
+            <table border="1"><tr><th>Student Name</th><th>Branch/Office</th><th>Class</th><th>Working Days</th><th>Default In Time</th><th>Default Out Time</th><th>Phone</th><th>Attendance Date</th><th>In Time</th><th>Out Time</th><th>Status</th></tr>`;
         attendanceRecords.forEach(r => { 
             const student = students.find(s => s.id === r.studentId);
             const workingDays = student?.days?.join(', ') || '';
-            html += `<tr><td>${r.studentName}${student?.id || ''}</td><td>${r.branch || ''}${student?.id || ''}</td><td>${r.class || ''}${student?.id || ''}</td><td>${workingDays}${student?.id || ''}</td><td>${student?.phone || ''}${student?.id || ''}</td><td>${r.date}${student?.id || ''}</td><td>${r.time}${student?.id || ''}</td><td>${r.inTime || ''}${student?.id || ''}</td><td>${r.outTime || ''}${student?.id || ''}</td><td>${r.status}${student?.id || ''}</td></tr>`; 
+            html += `<tr><td>${r.studentName}</td><td>${r.branch || ''}</td><td>${r.class || ''}</td><td>${workingDays}</td><td>${student?.inTime || ''}</td><td>${student?.outTime || ''}</td><td>${student?.phone || ''}</td><td>${r.date}</td><td>${r.inTime || ''}</td><td>${r.outTime || ''}</td><td>${r.status}</td></tr>`; 
         });
         html += `</table></body></html>`;
-        html = html.replace(/\${student?._id.*?\}/g, '');
         const win = window.open();
         win.document.write(html);
         win.document.close();
@@ -1132,8 +1441,6 @@
     // Navigation
     async function init() {
         await Promise.all([loadStudents(), loadAttendance()]);
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
         
         setTimeout(() => {
             document.getElementById('loadingOverlay').style.display = 'none';
@@ -1148,7 +1455,6 @@
                 document.getElementById(pageId).classList.add('active-page');
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                if (pageId === 'attendancePage') updateCurrentTime();
                 renderAll();
             });
         });
@@ -1174,8 +1480,7 @@
     if (localStorage.getItem('thirulingeshwar_dark_mode') === 'true') document.body.classList.add('dark');
 
     window.closeModal = closeModal;
-    window.editAttendanceRecord = editAttendanceRecord;
-    window.deleteAttendanceRecord = deleteAttendanceRecord;
+    window.closeEditDaysModal = closeEditDaysModal;
     init();
 </script>
 </body>
