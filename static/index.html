@@ -71,7 +71,20 @@
             border: 1px solid var(--border);
         }
 
-        .logo h1 {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .logo-text h1 {
             font-size: 1.4rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent), #f39c12);
@@ -80,7 +93,7 @@
             color: transparent;
         }
 
-        .logo p {
+        .logo-text p {
             font-size: 0.7rem;
             color: var(--text-secondary);
             margin-top: 2px;
@@ -339,6 +352,16 @@
             color: #4338ca;
         }
 
+        .icon-btn.edit-attendance {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .icon-btn.delete-attendance {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         .stats-card {
             background: var(--accent-soft);
             padding: 1.2rem;
@@ -482,8 +505,13 @@
             width: 100%;
         }
 
-        .individual-save-btn:hover {
+        .individual-save-btn:hover:not(:disabled) {
             background: linear-gradient(135deg, #219a52, #1e8449);
+        }
+
+        .individual-save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .welcome-banner {
@@ -549,6 +577,7 @@
         @media (max-width: 640px) {
             body { padding: 0.75rem; }
             .top-bar { flex-direction: column; align-items: stretch; text-align: center; }
+            .logo { justify-content: center; }
             .nav-links { justify-content: center; }
             .card { padding: 1rem; }
             .stats-number { font-size: 1.5rem; }
@@ -563,17 +592,19 @@
 <body>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
-    <h3>📚 Connecting to MongoDB Server...</h3>
+    <h3>📚 Connecting to Attendance Server...</h3>
     <p>Fetching student data from database</p>
 </div>
 
 <div class="app-container" style="display: none;" id="appContainer">
     <div class="top-bar">
-                <div class="logo">
-            <img src="download-removebg-preview.png" alt="logo">
         <div class="logo">
-            <h1>📖 Thirulingeshwar Class Attendance</h1>
-            <p>Complete Student Management with In/Out Timing</p>
+            <!-- IMPORTANT: For this to work, copy your image to the 'static' folder and name it 'download-removebg-preview.png' -->
+            <img src="download-removebg-preview.png" alt="logo">
+            <div class="logo-text">
+                <h1>📖 Thirulingeshwar Class Attendance</h1>
+                <p>Complete Student Management with In/Out Timing</p>
+            </div>
         </div>
         <div class="nav-links">
             <button class="nav-btn" data-page="dashboard">📊 Dashboard</button>
@@ -582,11 +613,12 @@
             <button class="nav-btn" data-page="records">📜 Records</button>
         </div>
         <div style="display: flex; gap: 0.5rem;">
-            <span class="sync-status" id="syncStatus">🟢 Connected to MongoDB</span>
+            <span class="sync-status" id="syncStatus">🟢 Connected to Server</span>
             <button class="dark-toggle" id="darkModeToggle">🌙 Dark Mode</button>
         </div>
     </div>
 
+    <!-- Rest of the HTML remains the same as previous version -->
     <div id="dashboardPage" class="page">
         <div class="welcome-banner">
             <h2>🙏 Namaste, Welcome to Thirulingeshwar Class</h2>
@@ -606,7 +638,7 @@
             <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
                 <button id="exportCSVBtn" class="btn-outline">📎 Export to CSV</button>
                 <button id="exportPDFBtn" class="btn-outline">📄 Export PDF</button>
-                <button id="refreshDataBtn" class="btn-outline">🔄 Refresh from MongoDB</button>
+                <button id="refreshDataBtn" class="btn-outline">🔄 Refresh Data</button>
             </div>
         </div>
         <div class="card"><h3>⭐ Recent Attendance</h3><div id="recentAttendanceList"></div></div>
@@ -652,11 +684,11 @@
                     <label>Phone Number</label>
                     <input type="tel" id="phone" placeholder="+91 9876543210">
                 </div>
-                <button type="submit">💾 Save to MongoDB</button>
+                <button type="submit">💾 Save Student</button>
             </form>
         </div>
         <div class="card">
-            <h3>📋 Students List (from MongoDB)</h3>
+            <h3>📋 Students List</h3>
             <div class="search-bar"><input type="text" id="studentSearchInput" placeholder="🔍 Search by name, branch, or class"></div>
             <div id="studentsListContainer"></div>
         </div>
@@ -710,7 +742,7 @@
 </div>
 
 <script>
-    // API Configuration
+    // API Configuration - Works for both local and Vercel
     const API_BASE = '/api';
     
     // Local cache for data
@@ -728,7 +760,7 @@
             });
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`API error: ${response.status} - ${errorText}`);
+                throw new Error(`API error: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
@@ -738,7 +770,7 @@
         }
     }
 
-    // Load students from MongoDB
+    // Load students
     async function loadStudents() {
         updateSyncStatus('syncing', '🔄 Loading students...');
         try {
@@ -755,7 +787,7 @@
         }
     }
 
-    // Load attendance from MongoDB
+    // Load attendance
     async function loadAttendance() {
         try {
             const data = await apiCall('/attendance');
@@ -770,7 +802,7 @@
         }
     }
 
-    // Load stats from MongoDB
+    // Load stats
     async function loadStats() {
         try {
             const stats = await apiCall('/stats');
@@ -781,59 +813,53 @@
         }
     }
 
-    // Add student to MongoDB with timing
+    // Add student
     async function addStudentToDB(student) {
         updateSyncStatus('syncing', '💾 Saving student...');
         try {
-            const result = await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
-            console.log('Add student result:', result);
+            await apiCall('/students', { method: 'POST', body: JSON.stringify(student) });
             await loadStudents();
-            updateSyncStatus('connected', '✅ Student saved to MongoDB');
+            updateSyncStatus('connected', '✅ Student saved');
             showToast(`✅ Student "${student.name}" added successfully!`);
         } catch (error) {
-            console.error('Add student error:', error);
             updateSyncStatus('error', '⚠️ Failed to save');
             showToast('Failed to add student: ' + error.message);
         }
     }
 
-    // Update student in MongoDB (including timing)
+    // Update student
     async function updateStudentInDB(id, updates) {
         updateSyncStatus('syncing', '🔄 Updating student...');
         try {
-            const result = await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
-            console.log('Update student result:', result);
+            await apiCall(`/students/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
             await loadStudents();
             updateSyncStatus('connected', '✅ Student updated');
             showToast('Student updated successfully!');
         } catch (error) {
-            console.error('Update student error:', error);
             updateSyncStatus('error', '⚠️ Update failed');
             showToast('Failed to update student: ' + error.message);
         }
     }
 
-    // Delete student from MongoDB
+    // Delete student
     async function deleteStudentFromDB(id) {
         const student = students.find(s => s.id === id);
         if (!confirm(`Delete "${student?.name}" and all their attendance records?`)) return;
         
         updateSyncStatus('syncing', '🗑️ Deleting student...');
         try {
-            const result = await apiCall(`/students/${id}`, { method: 'DELETE' });
-            console.log('Delete student result:', result);
+            await apiCall(`/students/${id}`, { method: 'DELETE' });
             await loadStudents();
             await loadAttendance();
             updateSyncStatus('connected', '✅ Student deleted');
             showToast(`Student "${student?.name}" deleted!`);
         } catch (error) {
-            console.error('Delete student error:', error);
             updateSyncStatus('error', '⚠️ Delete failed');
             showToast('Failed to delete student: ' + error.message);
         }
     }
 
-    // Save individual student attendance to MongoDB
+    // Save individual student attendance
     async function saveIndividualAttendance(studentId) {
         const student = students.find(s => s.id === studentId);
         if (!student) {
@@ -852,9 +878,15 @@
             return;
         }
         
+        // Disable save button to prevent multiple clicks
+        const saveBtn = document.querySelector(`.individual-save-btn[data-id="${studentId}"]`);
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = '💾 Saving...';
+        }
+        
         updateSyncStatus('syncing', `💾 Saving attendance for ${student.name}...`);
         
-        // CORRECTED ATTENDANCE DATA STRUCTURE WITH PROPER DATE FIELD
         const attendanceData = [{
             studentId: student.id,
             studentName: student.name,
@@ -864,35 +896,121 @@
             status: selection.status,
             inTime: selection.inTime || student.inTime || '09:00',
             outTime: selection.outTime || student.outTime || '17:00',
-            date: selection.date  // FIXED: Changed from selection.datee to selection.date
+            date: selection.date
         }];
         
-        console.log('Saving attendance data with correct structure:', attendanceData);
+        console.log('Saving attendance data:', JSON.stringify(attendanceData, null, 2));
         
         try {
-            const result = await apiCall('/attendance', { 
+            const response = await fetch(`${API_BASE}/attendance`, { 
                 method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ attendance: attendanceData }) 
             });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error response:', errorText);
+                let errorMessage = `Server error: ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.error || errorJson.message || errorMessage;
+                } catch(e) {
+                    errorMessage = errorText.substring(0, 200);
+                }
+                throw new Error(errorMessage);
+            }
+            
+            const result = await response.json();
             console.log('Save attendance result:', result);
             
             await loadAttendance();
             await loadStats();
             
-            // Clear only this student's selection after save
             delete currentAttendanceSelections[studentId];
             
             updateSyncStatus('connected', `✅ Attendance saved for ${student.name}`);
-            showToast(`✅ ${student.name}'s attendance saved for ${selection.date}! In: ${attendanceData[0].inTime} | Out: ${attendanceData[0].outTime}`);
+            showToast(`✅ ${student.name}'s attendance saved for ${selection.date}!`);
             renderAttendancePageList();
+            
         } catch (error) {
             console.error('Save attendance error:', error);
             updateSyncStatus('error', '⚠️ Save failed');
-            showToast(`Failed to save attendance for ${student.name}: ${error.message}`);
+            showToast(`❌ Failed to save attendance for ${student.name}: ${error.message}`);
+        } finally {
+            // Re-enable save button
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = `💾 Save ${escapeHtml(student.name)}'s Attendance (${selection.date})`;
+            }
         }
     }
 
-    // Set student timing (saves to student profile)
+    // Delete attendance record
+    async function deleteAttendanceRecord(recordId) {
+        if (!confirm('Delete this attendance record?')) return;
+        
+        updateSyncStatus('syncing', '🗑️ Deleting record...');
+        try {
+            const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Delete failed: ${response.status}`);
+            }
+            
+            await loadAttendance();
+            updateSyncStatus('connected', '✅ Record deleted');
+            showToast('Attendance record deleted successfully!');
+        } catch (error) {
+            console.error('Delete record error:', error);
+            updateSyncStatus('error', '⚠️ Delete failed');
+            showToast('Failed to delete record: ' + error.message);
+        }
+    }
+
+    // Edit attendance record
+    async function editAttendanceRecord(recordId) {
+        const record = attendanceRecords.find(r => r.id === recordId);
+        if (!record) {
+            showToast('Record not found!');
+            return;
+        }
+        
+        const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
+        
+        if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
+            updateSyncStatus('syncing', '🔄 Updating attendance...');
+            try {
+                const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Update failed: ${response.status}`);
+                }
+                
+                await loadAttendance();
+                updateSyncStatus('connected', '✅ Attendance updated');
+                showToast(`Attendance updated to ${newStatus}!`);
+            } catch (error) {
+                console.error('Update attendance error:', error);
+                updateSyncStatus('error', '⚠️ Update failed');
+                showToast('Failed to update attendance: ' + error.message);
+            }
+        } else if (newStatus) {
+            showToast('Invalid status! Please enter "Present" or "Absent"');
+        }
+    }
+
+    // Set student timing
     async function setStudentTiming(id) {
         const student = students.find(s => s.id === id);
         if (!student) return;
@@ -958,44 +1076,6 @@
         currentEditingStudentId = null;
     }
 
-    // Delete attendance record
-    async function deleteAttendanceRecord(recordId) {
-        if (confirm('Delete this attendance record from MongoDB?')) {
-            updateSyncStatus('syncing', '🗑️ Deleting record...');
-            try {
-                await apiCall(`/attendance/${recordId}`, { method: 'DELETE' });
-                await loadAttendance();
-                updateSyncStatus('connected', '✅ Record deleted');
-                showToast('Attendance record deleted!');
-            } catch (error) {
-                console.error('Delete record error:', error);
-                showToast('Failed to delete record: ' + error.message);
-            }
-        }
-    }
-
-    // Edit attendance record
-    async function editAttendanceRecord(recordId) {
-        const record = attendanceRecords.find(r => r.id === recordId);
-        if (record) {
-            const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
-            if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
-                updateSyncStatus('syncing', '🔄 Updating attendance...');
-                try {
-                    await apiCall(`/attendance/${recordId}`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
-                    await loadAttendance();
-                    updateSyncStatus('connected', '✅ Attendance updated');
-                    showToast(`Attendance updated to ${newStatus}!`);
-                } catch (error) {
-                    console.error('Update attendance error:', error);
-                    showToast('Failed to update attendance: ' + error.message);
-                }
-            } else if (newStatus) {
-                showToast('Invalid status! Please enter "Present" or "Absent"');
-            }
-        }
-    }
-
     // Helper Functions
     function updateSyncStatus(status, text) {
         const statusEl = document.getElementById('syncStatus');
@@ -1025,6 +1105,10 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
     // ==================== RENDER FUNCTIONS ====================
+    // ... (keep all the render functions from previous version)
+    // For brevity, I've included the essential functions above
+    // The full render functions should be copied from the previous working version
+
     function renderStudentList(filter = "") {
         const container = document.getElementById('studentsListContainer');
         if (!container) return;
@@ -1036,7 +1120,7 @@
         );
         
         if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">👀 No students found in MongoDB</div>`; 
+            container.innerHTML = `<div class="empty-state">👀 No students found</div>`; 
             return; 
         }
         
@@ -1061,6 +1145,7 @@
             </div>
         `).join('');
         
+        // Add event listeners
         document.querySelectorAll('.view-details').forEach(btn => {
             btn.addEventListener('click', () => showStudentDetails(btn.dataset.id));
         });
@@ -1202,7 +1287,6 @@
             `;
         }).join('');
         
-        // Add event listeners for status buttons
         document.querySelectorAll('.status-btn.present, .status-btn.absent').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -1213,7 +1297,6 @@
             });
         });
         
-        // Add event listeners for date inputs
         document.querySelectorAll('.date-input').forEach(input => {
             input.addEventListener('change', (e) => {
                 const sid = input.id.replace('date_', '');
@@ -1222,7 +1305,6 @@
             });
         });
         
-        // Add event listeners for time inputs
         document.querySelectorAll('.in-time-input').forEach(input => {
             input.addEventListener('change', (e) => {
                 const sid = input.id.replace('inTime_', '');
@@ -1239,7 +1321,6 @@
             });
         });
         
-        // Add event listeners for individual save buttons
         document.querySelectorAll('.individual-save-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 saveIndividualAttendance(btn.dataset.id);
@@ -1262,7 +1343,7 @@
         }
         
         if (records.length === 0) { 
-            container.innerHTML = `<div class="empty-state">📭 No attendance records in MongoDB</div>`; 
+            container.innerHTML = `<div class="empty-state">📭 No attendance records found</div>`; 
             return; 
         }
         
@@ -1319,7 +1400,7 @@
                 <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
                     📌 ${r.studentName} - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
                 </div>
-            `).join('') || "<div class='empty-state'>No records in MongoDB</div>";
+            `).join('') || "<div class='empty-state'>No records found</div>";
         }
     }
 
@@ -1366,7 +1447,7 @@
 
     document.getElementById('refreshDataBtn')?.addEventListener('click', async () => { 
         await Promise.all([loadStudents(), loadAttendance()]);
-        showToast("Data refreshed from MongoDB"); 
+        showToast("Data refreshed"); 
     });
     
     document.getElementById('saveEditedDaysBtn')?.addEventListener('click', saveEditedDays);
@@ -1395,9 +1476,10 @@
         attendanceRecords.forEach(r => { 
             const student = students.find(s => s.id === r.studentId);
             const workingDays = student?.days?.join(', ') || '';
-            html += `<tr><td>${r.studentName}</td><td>${r.branch || ''}</td><td>${r.class || ''}</td><td>${workingDays}</td><td>${student?.inTime || ''}</td><td>${student?.outTime || ''}</td><td>${student?.phone || ''}</td><td>${r.date}</td><td>${r.inTime || ''}</td><td>${r.outTime || ''}</td><td>${r.status}</td></tr>`; 
+            html += `<tr><td>${r.studentName}${student?.id || ''}</td><td>${r.branch || ''}${student?.id || ''}</td><td>${r.class || ''}${student?.id || ''}</td><td>${workingDays}${student?.id || ''}</td><td>${student?.inTime || ''}${student?.id || ''}</td><td>${student?.outTime || ''}${student?.id || ''}</td><td>${student?.phone || ''}${student?.id || ''}</td><td>${r.date}${student?.id || ''}</td><td>${r.inTime || ''}${student?.id || ''}</td><td>${r.outTime || ''}${student?.id || ''}</td><td>${r.status}${student?.id || ''}</tr>`; 
         });
-        html += `</table></body></html>`;
+        html += `<tr></body></html>`;
+        html = html.replace(/\${student?._id.*?\}/g, '');
         const win = window.open();
         win.document.write(html);
         win.document.close();
@@ -1448,8 +1530,6 @@
 
     window.closeModal = closeModal;
     window.closeEditDaysModal = closeEditDaysModal;
-    window.editAttendanceRecord = editAttendanceRecord;
-    window.deleteAttendanceRecord = deleteAttendanceRecord;
     init();
 </script>
 </body>
