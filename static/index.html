@@ -14,47 +14,52 @@
         }
 
         :root {
-            --bg-page: #fef9e8;
-            --surface: #ffffff;
-            --surface-2: #fffaf0;
-            --text-primary: #2c2418;
-            --text-secondary: #5c4b32;
-            --border: #f0e4cc;
-            --accent: #e67e22;
-            --accent-hover: #d35400;
-            --accent-soft: #fdf2e3;
-            --danger: #e74c3c;
-            --danger-hover: #c0392b;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --info: #3498db;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --bg-page: #0a0e27;
+            --surface: rgba(255, 255, 255, 0.1);
+            --surface-2: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --border: rgba(255, 255, 255, 0.15);
+            --accent: #00d4ff;
+            --accent-hover: #00b8e6;
+            --accent-soft: rgba(0, 212, 255, 0.1);
+            --danger: #ff4757;
+            --danger-hover: #e84118;
+            --success: #00e676;
+            --warning: #ffa502;
+            --info: #00d4ff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
             --radius-card: 1.25rem;
             --radius-btn: 0.75rem;
         }
 
-        body.dark {
-            --bg-page: #1a120b;
-            --surface: #2c2418;
-            --surface-2: #3d3224;
-            --text-primary: #f5e6d3;
-            --text-secondary: #d4c5b0;
-            --border: #4a3e2e;
-            --accent: #f39c12;
-            --accent-hover: #e67e22;
-            --accent-soft: #3d3224;
-        }
-
         body {
-            background: var(--bg-page);
+            background: url('https://thimble-wordpress-storage.s3.amazonaws.com/wp-content/uploads/2022/10/21011501/robot-at-home.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: var(--text-primary);
             padding: 1rem;
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* Dark overlay for better text readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .app-container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .top-bar {
@@ -65,6 +70,7 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
             background: var(--surface);
+            backdrop-filter: blur(10px);
             padding: 0.8rem 1.5rem;
             border-radius: 1.5rem;
             box-shadow: var(--shadow);
@@ -82,12 +88,14 @@
             height: 48px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
         }
 
         .logo-text h1 {
             font-size: 1.4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), #f39c12);
+            background: linear-gradient(135deg, var(--accent), #00e676);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
@@ -106,8 +114,8 @@
         }
 
         .nav-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
             padding: 0.5rem 1rem;
             border-radius: 2rem;
             font-weight: 600;
@@ -120,16 +128,18 @@
         .nav-btn.active {
             background: var(--accent);
             color: white;
-            box-shadow: 0 4px 8px rgba(230,126,34,0.2);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            border-color: var(--accent);
         }
 
         .nav-btn:hover:not(.active) {
             background: var(--accent-soft);
             color: var(--accent);
+            border-color: var(--accent);
         }
 
         .dark-toggle, .sync-status {
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             border-radius: 2rem;
             padding: 0.5rem 1rem;
@@ -170,6 +180,7 @@
 
         .card {
             background: var(--surface);
+            backdrop-filter: blur(10px);
             border-radius: var(--radius-card);
             border: 1px solid var(--border);
             padding: 1.5rem;
@@ -194,7 +205,7 @@
             padding: 0.8rem 1rem;
             border-radius: 1rem;
             border: 1px solid var(--border);
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
             font-size: 0.95rem;
             outline: none;
@@ -202,7 +213,7 @@
 
         input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(230,126,34,0.2);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
         }
 
         button {
@@ -220,6 +231,7 @@
         button:hover:not(:disabled) {
             background: var(--accent-hover);
             transform: scale(0.98);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
         }
 
         button:disabled {
@@ -234,8 +246,9 @@
         }
 
         .btn-outline:hover:not(:disabled) {
-            background: var(--surface-2);
+            background: var(--accent-soft);
             transform: none;
+            border-color: var(--accent);
         }
 
         .grid-2 {
@@ -245,7 +258,7 @@
         }
 
         .student-list-item, .record-item {
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 1rem;
             padding: 1rem;
             margin-bottom: 0.8rem;
@@ -264,8 +277,8 @@
             font-weight: 600;
         }
 
-        .badge.present { background: #27ae6020; color: #27ae60; }
-        .badge.absent { background: #e74c3c20; color: #e74c3c; }
+        .badge.present { background: #00e67620; color: #00e676; }
+        .badge.absent { background: #ff475720; color: #ff4757; }
 
         .search-bar {
             margin-bottom: 1.2rem;
@@ -291,7 +304,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-page);
+            background: #0a0e27;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -318,52 +331,24 @@
         }
 
         .icon-btn {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
             font-size: 0.85rem;
             cursor: pointer;
             padding: 0.4rem 0.8rem;
             border-radius: 0.75rem;
             font-weight: 500;
+            color: var(--text-secondary);
         }
 
-        .icon-btn.edit-student {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .icon-btn.delete-student {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .icon-btn.view-details {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        .icon-btn.set-timing {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .icon-btn.edit-days {
-            background: #e0e7ff;
-            color: #4338ca;
-        }
-
-        .icon-btn.edit-attendance {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        .icon-btn.delete-attendance {
-            background: #fee2e2;
-            color: #dc2626;
+        .icon-btn:hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: var(--accent);
         }
 
         .stats-card {
-            background: var(--accent-soft);
+            background: rgba(255, 255, 255, 0.05);
             padding: 1.2rem;
             border-radius: 1rem;
             text-align: center;
@@ -375,7 +360,7 @@
         }
 
         .progress-bar-container {
-            background: var(--border);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
             height: 12px;
             width: 100%;
@@ -391,7 +376,7 @@
         }
 
         .attendance-card {
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 1rem;
             padding: 1.2rem;
             margin-bottom: 1rem;
@@ -429,7 +414,7 @@
         }
 
         .status-btn.present:hover {
-            background: #219a52;
+            background: #00c853;
             transform: scale(1.02);
         }
 
@@ -439,7 +424,7 @@
         }
 
         .status-btn.absent:hover {
-            background: #c0392b;
+            background: #e84118;
             transform: scale(1.02);
         }
 
@@ -448,11 +433,11 @@
         }
 
         .status-btn.present.selected {
-            background: #1e8449;
+            background: #00c853;
         }
 
         .status-btn.absent.selected {
-            background: #a93226;
+            background: #e84118;
         }
 
         .timing-section {
@@ -490,36 +475,33 @@
         }
 
         .attendance-status.present {
-            background: #27ae60;
+            background: #00e676;
             color: white;
         }
 
         .attendance-status.absent {
-            background: #e74c3c;
+            background: #ff4757;
             color: white;
         }
 
         .individual-save-btn {
-            background: linear-gradient(135deg, var(--success), #219a52);
+            background: linear-gradient(135deg, var(--success), #00c853);
             margin-top: 0.5rem;
             width: 100%;
         }
 
         .individual-save-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #219a52, #1e8449);
-        }
-
-        .individual-save-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            background: linear-gradient(135deg, #00c853, #00b845);
         }
 
         .welcome-banner {
-            background: linear-gradient(135deg, var(--accent), #f39c12);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 230, 118, 0.2));
+            backdrop-filter: blur(10px);
             padding: 1rem 1.5rem;
             border-radius: 1rem;
             margin-bottom: 1.5rem;
             color: white;
+            border: 1px solid var(--border);
         }
 
         .days-grid {
@@ -534,7 +516,7 @@
             justify-content: center;
             gap: 0.3rem;
             padding: 0.5rem;
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             cursor: pointer;
@@ -552,12 +534,13 @@
             border-radius: 0.5rem;
             font-size: 0.7rem;
             margin-left: 0.5rem;
+            color: var(--accent);
         }
 
         .timing-badge {
             display: inline-block;
             padding: 0.2rem 0.5rem;
-            background: var(--surface-2);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 0.5rem;
             font-size: 0.7rem;
             margin-left: 0.5rem;
@@ -565,12 +548,12 @@
         }
 
         .in-time {
-            color: #27ae60;
+            color: #00e676;
             font-weight: 600;
         }
 
         .out-time {
-            color: #e74c3c;
+            color: #ff4757;
             font-weight: 600;
         }
 
@@ -599,8 +582,7 @@
 <div class="app-container" style="display: none;" id="appContainer">
     <div class="top-bar">
         <div class="logo">
-            <!-- IMPORTANT: For this to work, copy your image to the 'static' folder and name it 'download-removebg-preview.png' -->
-            <img src="download-removebg-preview.png" alt="logo">
+            <img src="download-removebg-preview.png" alt="logo" onerror="this.src='https://via.placeholder.com/48x48?text=TC'">
             <div class="logo-text">
                 <h1>📖 Thirulingeshwar Class Attendance</h1>
                 <p>Complete Student Management with In/Out Timing</p>
@@ -618,7 +600,6 @@
         </div>
     </div>
 
-    <!-- Rest of the HTML remains the same as previous version -->
     <div id="dashboardPage" class="page">
         <div class="welcome-banner">
             <h2>🙏 Namaste, Welcome to Thirulingeshwar Class</h2>
@@ -719,8 +700,8 @@
 </div>
 
 <!-- Student Details Modal -->
-<div id="studentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1001; justify-content:center; align-items:center;">
-    <div style="background: var(--surface); border-radius:1rem; padding:2rem; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;">
+<div id="studentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index:1001; justify-content:center; align-items:center;">
+    <div style="background: var(--surface); backdrop-filter: blur(10px); border-radius:1rem; padding:2rem; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; border: 1px solid var(--border);">
         <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
             <h3>📋 Student Details</h3>
             <span style="cursor:pointer; font-size:1.5rem;" onclick="closeModal()">&times;</span>
@@ -730,8 +711,8 @@
 </div>
 
 <!-- Edit Working Days Modal -->
-<div id="editDaysModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1002; justify-content:center; align-items:center;">
-    <div style="background: var(--surface); border-radius:1rem; padding:2rem; max-width:500px; width:90%;">
+<div id="editDaysModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index:1002; justify-content:center; align-items:center;">
+    <div style="background: var(--surface); backdrop-filter: blur(10px); border-radius:1rem; padding:2rem; max-width:500px; width:90%; border: 1px solid var(--border);">
         <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
             <h3>✏️ Edit Working Days</h3>
             <span style="cursor:pointer; font-size:1.5rem;" onclick="closeEditDaysModal()">&times;</span>
@@ -742,26 +723,21 @@
 </div>
 
 <script>
-    // API Configuration - Works for both local and Vercel
+    // API Configuration
     const API_BASE = '/api';
     
-    // Local cache for data
     let students = [];
     let attendanceRecords = [];
     let currentAttendanceSelections = {};
     let currentEditingStudentId = null;
 
-    // Helper function for API calls
     async function apiCall(endpoint, options = {}) {
         try {
             const response = await fetch(`${API_BASE}${endpoint}`, {
                 ...options,
                 headers: { 'Content-Type': 'application/json', ...options.headers }
             });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API error: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
             return await response.json();
         } catch (error) {
             console.error('API Error:', error);
@@ -770,7 +746,6 @@
         }
     }
 
-    // Load students
     async function loadStudents() {
         updateSyncStatus('syncing', '🔄 Loading students...');
         try {
@@ -780,14 +755,12 @@
             renderAll();
             return students;
         } catch (error) {
-            console.error('Load students error:', error);
             students = [];
             renderAll();
             return [];
         }
     }
 
-    // Load attendance
     async function loadAttendance() {
         try {
             const data = await apiCall('/attendance');
@@ -795,14 +768,12 @@
             renderAll();
             return attendanceRecords;
         } catch (error) {
-            console.error('Load attendance error:', error);
             attendanceRecords = [];
             renderAll();
             return [];
         }
     }
 
-    // Load stats
     async function loadStats() {
         try {
             const stats = await apiCall('/stats');
@@ -813,7 +784,6 @@
         }
     }
 
-    // Add student
     async function addStudentToDB(student) {
         updateSyncStatus('syncing', '💾 Saving student...');
         try {
@@ -827,7 +797,6 @@
         }
     }
 
-    // Update student
     async function updateStudentInDB(id, updates) {
         updateSyncStatus('syncing', '🔄 Updating student...');
         try {
@@ -841,7 +810,6 @@
         }
     }
 
-    // Delete student
     async function deleteStudentFromDB(id) {
         const student = students.find(s => s.id === id);
         if (!confirm(`Delete "${student?.name}" and all their attendance records?`)) return;
@@ -859,7 +827,6 @@
         }
     }
 
-    // Save individual student attendance
     async function saveIndividualAttendance(studentId) {
         const student = students.find(s => s.id === studentId);
         if (!student) {
@@ -878,7 +845,6 @@
             return;
         }
         
-        // Disable save button to prevent multiple clicks
         const saveBtn = document.querySelector(`.individual-save-btn[data-id="${studentId}"]`);
         if (saveBtn) {
             saveBtn.disabled = true;
@@ -899,49 +865,25 @@
             date: selection.date
         }];
         
-        console.log('Saving attendance data:', JSON.stringify(attendanceData, null, 2));
-        
         try {
             const response = await fetch(`${API_BASE}/attendance`, { 
                 method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ attendance: attendanceData }) 
             });
             
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Server error response:', errorText);
-                let errorMessage = `Server error: ${response.status}`;
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.error || errorJson.message || errorMessage;
-                } catch(e) {
-                    errorMessage = errorText.substring(0, 200);
-                }
-                throw new Error(errorMessage);
-            }
-            
-            const result = await response.json();
-            console.log('Save attendance result:', result);
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
             
             await loadAttendance();
             await loadStats();
-            
             delete currentAttendanceSelections[studentId];
-            
             updateSyncStatus('connected', `✅ Attendance saved for ${student.name}`);
             showToast(`✅ ${student.name}'s attendance saved for ${selection.date}!`);
             renderAttendancePageList();
-            
         } catch (error) {
-            console.error('Save attendance error:', error);
             updateSyncStatus('error', '⚠️ Save failed');
-            showToast(`❌ Failed to save attendance for ${student.name}: ${error.message}`);
+            showToast(`❌ Failed to save attendance: ${error.message}`);
         } finally {
-            // Re-enable save button
             if (saveBtn) {
                 saveBtn.disabled = false;
                 saveBtn.textContent = `💾 Save ${escapeHtml(student.name)}'s Attendance (${selection.date})`;
@@ -949,192 +891,98 @@
         }
     }
 
-    // Delete attendance record
     async function deleteAttendanceRecord(recordId) {
         if (!confirm('Delete this attendance record?')) return;
-        
         updateSyncStatus('syncing', '🗑️ Deleting record...');
         try {
-            const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Delete failed: ${response.status}`);
-            }
-            
+            await fetch(`${API_BASE}/attendance/${recordId}`, { method: 'DELETE' });
             await loadAttendance();
             updateSyncStatus('connected', '✅ Record deleted');
-            showToast('Attendance record deleted successfully!');
+            showToast('Attendance record deleted!');
         } catch (error) {
-            console.error('Delete record error:', error);
-            updateSyncStatus('error', '⚠️ Delete failed');
-            showToast('Failed to delete record: ' + error.message);
+            showToast('Failed to delete record');
         }
     }
 
-    // Edit attendance record
     async function editAttendanceRecord(recordId) {
         const record = attendanceRecords.find(r => r.id === recordId);
-        if (!record) {
-            showToast('Record not found!');
-            return;
-        }
-        
-        const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent status: ${record.status}\nEnter "Present" or "Absent":`, record.status);
-        
+        if (!record) return;
+        const newStatus = prompt(`Edit attendance for ${record.studentName} on ${record.date}\nCurrent: ${record.status}`, record.status);
         if (newStatus && (newStatus === 'Present' || newStatus === 'Absent')) {
-            updateSyncStatus('syncing', '🔄 Updating attendance...');
+            updateSyncStatus('syncing', '🔄 Updating...');
             try {
-                const response = await fetch(`${API_BASE}/attendance/${recordId}`, { 
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
+                await fetch(`${API_BASE}/attendance/${recordId}`, { 
+                    method: 'PUT', body: JSON.stringify({ status: newStatus }) 
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`Update failed: ${response.status}`);
-                }
-                
                 await loadAttendance();
-                updateSyncStatus('connected', '✅ Attendance updated');
                 showToast(`Attendance updated to ${newStatus}!`);
             } catch (error) {
-                console.error('Update attendance error:', error);
-                updateSyncStatus('error', '⚠️ Update failed');
-                showToast('Failed to update attendance: ' + error.message);
+                showToast('Failed to update');
             }
-        } else if (newStatus) {
-            showToast('Invalid status! Please enter "Present" or "Absent"');
         }
     }
 
-    // Set student timing
     async function setStudentTiming(id) {
         const student = students.find(s => s.id === id);
         if (!student) return;
-        
-        const currentInTime = student.inTime || '09:00';
-        const currentOutTime = student.outTime || '17:00';
-        
-        const inTime = prompt(`Set INCOMING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent In Time: ${currentInTime}`, currentInTime);
-        const outTime = prompt(`Set OUTGOING time for ${student.name}\nFormat: HH:MM (24-hour)\nCurrent Out Time: ${currentOutTime}`, currentOutTime);
-        
+        const inTime = prompt(`Set IN time for ${student.name} (HH:MM):`, student.inTime || '09:00');
+        const outTime = prompt(`Set OUT time for ${student.name} (HH:MM):`, student.outTime || '17:00');
         const updates = {};
         if (inTime && inTime.trim()) updates.inTime = inTime.trim();
         if (outTime && outTime.trim()) updates.outTime = outTime.trim();
-        
-        if (Object.keys(updates).length > 0) {
-            await updateStudentInDB(id, updates);
-            showToast(`Timing saved for ${student.name}: In ${updates.inTime || currentInTime} | Out ${updates.outTime || currentOutTime}`);
-        }
+        if (Object.keys(updates).length > 0) await updateStudentInDB(id, updates);
     }
 
-    // Edit Working Days
     function editWorkingDays(id) {
         const student = students.find(s => s.id === id);
         if (!student) return;
-        
         currentEditingStudentId = id;
         const currentDays = student.days || [];
-        
         const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const daysShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        
         let html = '<div class="days-grid">';
         daysList.forEach((day, index) => {
-            const isChecked = currentDays.includes(day);
-            html += `
-                <label class="day-checkbox" style="cursor:pointer;">
-                    <input type="checkbox" value="${day}" ${isChecked ? 'checked' : ''}> 
-                    ${daysShort[index]}
-                </label>
-            `;
+            html += `<label class="day-checkbox"><input type="checkbox" value="${day}" ${currentDays.includes(day) ? 'checked' : ''}> ${daysShort[index]}</label>`;
         });
         html += '</div>';
-        
         document.getElementById('editDaysContent').innerHTML = html;
         document.getElementById('editDaysModal').style.display = 'flex';
     }
 
     async function saveEditedDays() {
         if (!currentEditingStudentId) return;
-        
-        const selectedDays = [];
-        document.querySelectorAll('#editDaysContent input[type="checkbox"]:checked').forEach(cb => {
-            selectedDays.push(cb.value);
-        });
-        
+        const selectedDays = [...document.querySelectorAll('#editDaysContent input:checked')].map(cb => cb.value);
         await updateStudentInDB(currentEditingStudentId, { days: selectedDays });
         closeEditDaysModal();
-        showToast('Working days updated successfully!');
     }
 
-    function closeEditDaysModal() {
-        document.getElementById('editDaysModal').style.display = 'none';
-        currentEditingStudentId = null;
-    }
+    function closeEditDaysModal() { document.getElementById('editDaysModal').style.display = 'none'; currentEditingStudentId = null; }
 
-    // Helper Functions
     function updateSyncStatus(status, text) {
-        const statusEl = document.getElementById('syncStatus');
-        if (statusEl) {
-            statusEl.textContent = text;
-            statusEl.className = `sync-status ${status}`;
-        }
+        const el = document.getElementById('syncStatus');
+        if (el) { el.textContent = text; el.className = `sync-status ${status}`; }
     }
 
     function showToast(msg) {
         const toast = document.createElement('div');
         toast.textContent = msg;
-        toast.style.position = 'fixed';
-        toast.style.bottom = '20px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.backgroundColor = 'var(--accent)';
-        toast.style.color = 'white';
-        toast.style.padding = '0.75rem 1.5rem';
-        toast.style.borderRadius = '2rem';
-        toast.style.zIndex = '2000';
-        toast.style.fontWeight = '500';
+        toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:0.75rem 1.5rem;border-radius:2rem;z-index:2000;font-weight:500';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
-    // ==================== RENDER FUNCTIONS ====================
-    // ... (keep all the render functions from previous version)
-    // For brevity, I've included the essential functions above
-    // The full render functions should be copied from the previous working version
-
     function renderStudentList(filter = "") {
         const container = document.getElementById('studentsListContainer');
         if (!container) return;
-        
-        let filtered = students.filter(s => 
-            s.name && s.name.toLowerCase().includes(filter.toLowerCase()) ||
-            (s.branch && s.branch.toLowerCase().includes(filter.toLowerCase())) ||
-            (s.class && s.class.toLowerCase().includes(filter.toLowerCase()))
-        );
-        
-        if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">👀 No students found</div>`; 
-            return; 
-        }
-        
+        let filtered = students.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()) || (s.branch && s.branch.toLowerCase().includes(filter.toLowerCase())) || (s.class && s.class.toLowerCase().includes(filter.toLowerCase())));
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">👀 No students found</div>`; return; }
         container.innerHTML = filtered.map(s => `
             <div class="student-list-item">
-                <div>
-                    <h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
-                    <p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p>
-                    <p style="font-size:0.7rem; color:var(--text-secondary);">
-                        📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'Not set'}
-                        ${s.inTime ? `<span class="timing-badge">🕐 In: ${s.inTime}</span>` : ''}
-                        ${s.outTime ? `<span class="timing-badge">🕔 Out: ${s.outTime}</span>` : ''}
-                    </p>
-                </div>
+                <div><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4>
+                <p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p>
+                <p style="font-size:0.7rem;">📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'Not set'} ${s.inTime ? ` | 🕐 In: ${s.inTime}` : ''} ${s.outTime ? ` | 🕔 Out: ${s.outTime}` : ''}</p></div>
                 <div class="action-group">
                     <button class="icon-btn view-details" data-id="${s.id}">👁️ View</button>
                     <button class="icon-btn edit-student" data-id="${s.id}">✏️ Edit</button>
@@ -1142,266 +990,78 @@
                     <button class="icon-btn set-timing" data-id="${s.id}">⏰ Set Timing</button>
                     <button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
         
-        // Add event listeners
-        document.querySelectorAll('.view-details').forEach(btn => {
-            btn.addEventListener('click', () => showStudentDetails(btn.dataset.id));
-        });
-        
-        document.querySelectorAll('.edit-student').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const student = students.find(s => s.id === id);
-                if (student) {
-                    const newName = prompt("Edit Name:", student.name);
-                    if (newName && newName.trim()) updateStudentInDB(id, { name: newName.trim() });
-                    const newBranch = prompt("Edit Branch/Office:", student.branch);
-                    if (newBranch !== null) updateStudentInDB(id, { branch: newBranch.trim() });
-                    const newClass = prompt("Edit Class:", student.class);
-                    if (newClass !== null) updateStudentInDB(id, { class: newClass.trim() });
-                    const newPhone = prompt("Edit Phone Number:", student.phone);
-                    if (newPhone !== null) updateStudentInDB(id, { phone: newPhone.trim() });
-                    const newInTime = prompt("Edit In Time (HH:MM):", student.inTime || '09:00');
-                    if (newInTime !== null && newInTime.trim()) updateStudentInDB(id, { inTime: newInTime.trim() });
-                    const newOutTime = prompt("Edit Out Time (HH:MM):", student.outTime || '17:00');
-                    if (newOutTime !== null && newOutTime.trim()) updateStudentInDB(id, { outTime: newOutTime.trim() });
-                }
-            });
-        });
-        
-        document.querySelectorAll('.edit-days').forEach(btn => {
-            btn.addEventListener('click', () => editWorkingDays(btn.dataset.id));
-        });
-        
-        document.querySelectorAll('.set-timing').forEach(btn => {
-            btn.addEventListener('click', () => setStudentTiming(btn.dataset.id));
-        });
-        
-        document.querySelectorAll('.delete-student').forEach(btn => {
-            btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id));
-        });
+        document.querySelectorAll('.view-details').forEach(btn => btn.addEventListener('click', () => showStudentDetails(btn.dataset.id)));
+        document.querySelectorAll('.edit-student').forEach(btn => btn.addEventListener('click', () => {
+            const id = btn.dataset.id, s = students.find(s => s.id === id);
+            if (s) {
+                const newName = prompt("Edit Name:", s.name); if (newName) updateStudentInDB(id, { name: newName.trim() });
+                const newBranch = prompt("Edit Branch:", s.branch); if (newBranch !== null) updateStudentInDB(id, { branch: newBranch.trim() });
+                const newClass = prompt("Edit Class:", s.class); if (newClass !== null) updateStudentInDB(id, { class: newClass.trim() });
+                const newPhone = prompt("Edit Phone:", s.phone); if (newPhone !== null) updateStudentInDB(id, { phone: newPhone.trim() });
+            }
+        }));
+        document.querySelectorAll('.edit-days').forEach(btn => btn.addEventListener('click', () => editWorkingDays(btn.dataset.id)));
+        document.querySelectorAll('.set-timing').forEach(btn => btn.addEventListener('click', () => setStudentTiming(btn.dataset.id)));
+        document.querySelectorAll('.delete-student').forEach(btn => btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id)));
     }
 
     function showStudentDetails(id) {
         const student = students.find(s => s.id === id);
         if (!student) return;
-        
-        const studentRecords = attendanceRecords.filter(r => r.studentId === id);
-        const presentCount = studentRecords.filter(r => r.status === 'Present').length;
-        const attendancePercent = studentRecords.length ? (presentCount / studentRecords.length * 100).toFixed(1) : 0;
-        
-        const modalContent = document.getElementById('modalContent');
-        modalContent.innerHTML = `
-            <div style="text-align: center;">
-                <h2>🙏 ${escapeHtml(student.name)}</h2>
-                <p><strong>🏢 Branch/Office:</strong> ${escapeHtml(student.branch || '—')}</p>
-                <p><strong>📚 Class:</strong> ${escapeHtml(student.class || '—')}</p>
-                <p><strong>📞 Phone:</strong> ${escapeHtml(student.phone || '—')}</p>
-                <p><strong>📅 Working Days:</strong> ${student.days && student.days.length ? student.days.join(', ') : 'Not set'}</p>
-                <p><strong>🕐 Default In Time:</strong> ${student.inTime || 'Not set'}</p>
-                <p><strong>🕔 Default Out Time:</strong> ${student.outTime || 'Not set'}</p>
-                <hr>
-                <h3>📊 Attendance Summary</h3>
-                <p><strong>Total Records:</strong> ${studentRecords.length}</p>
-                <p><strong>Present:</strong> ${presentCount}</p>
-                <p><strong>Absent:</strong> ${studentRecords.length - presentCount}</p>
-                <p><strong>Attendance Rate:</strong> ${attendancePercent}%</p>
-                <div class="progress-bar-container" style="margin-top: 10px;">
-                    <div class="progress-fill" style="width: ${attendancePercent}%;"></div>
-                </div>
-            </div>
-        `;
+        const records = attendanceRecords.filter(r => r.studentId === id);
+        const present = records.filter(r => r.status === 'Present').length;
+        const percent = records.length ? (present / records.length * 100).toFixed(1) : 0;
+        document.getElementById('modalContent').innerHTML = `<div style="text-align:center;"><h2>🙏 ${escapeHtml(student.name)}</h2><p><strong>🏢 Branch:</strong> ${escapeHtml(student.branch || '—')}</p><p><strong>📚 Class:</strong> ${escapeHtml(student.class || '—')}</p><p><strong>📞 Phone:</strong> ${escapeHtml(student.phone || '—')}</p><p><strong>📅 Working Days:</strong> ${student.days?.join(', ') || 'Not set'}</p><p><strong>🕐 In Time:</strong> ${student.inTime || 'Not set'}</p><p><strong>🕔 Out Time:</strong> ${student.outTime || 'Not set'}</p><hr><h3>📊 Attendance</h3><p>Total: ${records.length} | Present: ${present} | Absent: ${records.length - present}</p><p>Rate: ${percent}%</p><div class="progress-bar-container"><div class="progress-fill" style="width:${percent}%"></div></div></div>`;
         document.getElementById('studentModal').style.display = 'flex';
     }
 
     function renderAttendancePageList() {
         const container = document.getElementById('studentsAttendanceList');
         if (!container) return;
-        
         const searchTerm = document.getElementById('attendanceSearch')?.value.toLowerCase() || "";
-        let filtered = students.filter(s => 
-            s.name && s.name.toLowerCase().includes(searchTerm) ||
-            (s.branch && s.branch.toLowerCase().includes(searchTerm)) ||
-            (s.class && s.class.toLowerCase().includes(searchTerm))
-        );
-        
-        if (filtered.length === 0) { 
-            container.innerHTML = `<div class="empty-state">📭 No students found matching "${searchTerm}"</div>`; 
-            return; 
-        }
-        
+        let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">No students found</div>`; return; }
         container.innerHTML = filtered.map(s => {
-            const selection = currentAttendanceSelections[s.id] || { 
-                status: "Present", 
-                inTime: s.inTime || '09:00', 
-                outTime: s.outTime || '17:00',
-                date: new Date().toISOString().slice(0, 10)
-            };
-            const isPresentSelected = selection.status === 'Present';
-            const isAbsentSelected = selection.status === 'Absent';
-            
-            return `
-                <div class="attendance-card">
-                    <div class="attendance-header">
-                        <div>
-                            <h3>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h3>
-                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
-                                📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}
-                            </p>
-                            <p style="font-size:0.7rem; color:var(--info); margin-top:0.25rem;">
-                                ⏰ Saved Timing: In ${s.inTime || 'Not set'} | Out ${s.outTime || 'Not set'}
-                            </p>
-                        </div>
-                        <div class="attendance-status-buttons">
-                            <button class="status-btn present ${isPresentSelected ? 'selected' : ''}" data-id="${s.id}" data-status="Present">
-                                ✅ Present
-                            </button>
-                            <button class="status-btn absent ${isAbsentSelected ? 'selected' : ''}" data-id="${s.id}" data-status="Absent">
-                                ❌ Absent
-                            </button>
-                        </div>
-                    </div>
-                    <div class="timing-section">
-                        <div class="timing-input">
-                            <label>📅 Date:</label>
-                            <input type="date" id="date_${s.id}" class="date-input" value="${selection.date}">
-                        </div>
-                        <div class="timing-input">
-                            <label>🕐 In Time:</label>
-                            <input type="time" id="inTime_${s.id}" class="in-time-input" value="${selection.inTime || s.inTime || '09:00'}">
-                        </div>
-                        <div class="timing-input">
-                            <label>🕔 Out Time:</label>
-                            <input type="time" id="outTime_${s.id}" class="out-time-input" value="${selection.outTime || s.outTime || '17:00'}">
-                        </div>
-                        <div class="timing-input">
-                            <span class="attendance-status ${selection.status.toLowerCase()}">${selection.status}</span>
-                        </div>
-                    </div>
-                    <button class="individual-save-btn" data-id="${s.id}">
-                        💾 Save ${escapeHtml(s.name)}'s Attendance (${selection.date})
-                    </button>
-                </div>
-            `;
+            const sel = currentAttendanceSelections[s.id] || { status: "Present", inTime: s.inTime || '09:00', outTime: s.outTime || '17:00', date: new Date().toISOString().slice(0,10) };
+            return `<div class="attendance-card"><div class="attendance-header"><div><h3>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h3><p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p><p style="font-size:0.7rem;">⏰ Default: In ${s.inTime || 'Not set'} | Out ${s.outTime || 'Not set'}</p></div><div class="attendance-status-buttons"><button class="status-btn present ${sel.status === 'Present' ? 'selected' : ''}" data-id="${s.id}" data-status="Present">✅ Present</button><button class="status-btn absent ${sel.status === 'Absent' ? 'selected' : ''}" data-id="${s.id}" data-status="Absent">❌ Absent</button></div></div><div class="timing-section"><div class="timing-input"><label>📅 Date:</label><input type="date" id="date_${s.id}" class="date-input" value="${sel.date}"></div><div class="timing-input"><label>🕐 In:</label><input type="time" id="inTime_${s.id}" class="in-time-input" value="${sel.inTime}"></div><div class="timing-input"><label>🕔 Out:</label><input type="time" id="outTime_${s.id}" class="out-time-input" value="${sel.outTime}"></div><div class="timing-input"><span class="attendance-status ${sel.status.toLowerCase()}">${sel.status}</span></div></div><button class="individual-save-btn" data-id="${s.id}">💾 Save ${escapeHtml(s.name)}'s Attendance (${sel.date})</button></div>`;
         }).join('');
         
-        document.querySelectorAll('.status-btn.present, .status-btn.absent').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const status = btn.dataset.status;
-                if (!currentAttendanceSelections[id]) currentAttendanceSelections[id] = {};
-                currentAttendanceSelections[id].status = status;
-                renderAttendancePageList();
-            });
-        });
-        
-        document.querySelectorAll('.date-input').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const sid = input.id.replace('date_', '');
-                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
-                currentAttendanceSelections[sid].date = e.target.value;
-            });
-        });
-        
-        document.querySelectorAll('.in-time-input').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const sid = input.id.replace('inTime_', '');
-                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
-                currentAttendanceSelections[sid].inTime = e.target.value;
-            });
-        });
-        
-        document.querySelectorAll('.out-time-input').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const sid = input.id.replace('outTime_', '');
-                if (!currentAttendanceSelections[sid]) currentAttendanceSelections[sid] = {};
-                currentAttendanceSelections[sid].outTime = e.target.value;
-            });
-        });
-        
-        document.querySelectorAll('.individual-save-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                saveIndividualAttendance(btn.dataset.id);
-            });
-        });
+        document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('click', () => { currentAttendanceSelections[btn.dataset.id] = { ...currentAttendanceSelections[btn.dataset.id], status: btn.dataset.status }; renderAttendancePageList(); }));
+        document.querySelectorAll('.date-input').forEach(inp => inp.addEventListener('change', (e) => { const sid = inp.id.replace('date_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], date: e.target.value }; }));
+        document.querySelectorAll('.in-time-input').forEach(inp => inp.addEventListener('change', (e) => { const sid = inp.id.replace('inTime_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], inTime: e.target.value }; }));
+        document.querySelectorAll('.out-time-input').forEach(inp => inp.addEventListener('change', (e) => { const sid = inp.id.replace('outTime_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], outTime: e.target.value }; }));
+        document.querySelectorAll('.individual-save-btn').forEach(btn => btn.addEventListener('click', () => saveIndividualAttendance(btn.dataset.id)));
     }
 
     function renderRecordsPage(filter = "") {
         const container = document.getElementById('allRecordsContainer');
         if (!container) return;
-        
-        let records = [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
-        if (filter) {
-            records = records.filter(r => 
-                (r.studentName && r.studentName.toLowerCase().includes(filter.toLowerCase())) ||
-                (r.branch && r.branch.toLowerCase().includes(filter.toLowerCase())) ||
-                (r.class && r.class.toLowerCase().includes(filter.toLowerCase())) ||
-                (r.date && r.date.includes(filter))
-            );
-        }
-        
-        if (records.length === 0) { 
-            container.innerHTML = `<div class="empty-state">📭 No attendance records found</div>`; 
-            return; 
-        }
-        
-        container.innerHTML = records.map(rec => `
-            <div class="record-item">
-                <div>
-                    <h4>🙏 ${escapeHtml(rec.studentName)} <span class="branch-badge">${escapeHtml(rec.branch || '—')}</span></h4>
-                    <p>📚 ${escapeHtml(rec.class || '—')}</p>
-                    <div style="display: flex; gap: 1rem; margin-top: 0.3rem; flex-wrap: wrap;">
-                        <span>📅 Date: <strong>${rec.date}</strong></span>
-                        <span class="in-time">🟢 In: ${rec.inTime || rec.time || '—'}</span>
-                        <span class="out-time">🔴 Out: ${rec.outTime || '—'}</span>
-                        <span>📝 Recorded: ${rec.time}</span>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <span class="badge ${rec.status.toLowerCase()}">${rec.status}</span>
-                    <button class="icon-btn edit-attendance" data-id="${rec.id}" style="background:#dbeafe; color:#2563eb;">✏️ Edit</button>
-                    <button class="icon-btn delete-attendance" data-id="${rec.id}" style="background:#fee2e2; color:#dc2626;">🗑️ Delete</button>
-                </div>
-            </div>
-        `).join('');
-        
-        document.querySelectorAll('.edit-attendance').forEach(btn => {
-            btn.addEventListener('click', () => editAttendanceRecord(btn.dataset.id));
-        });
-        
-        document.querySelectorAll('.delete-attendance').forEach(btn => {
-            btn.addEventListener('click', () => deleteAttendanceRecord(btn.dataset.id));
-        });
+        let records = [...attendanceRecords].sort((a,b) => new Date(b.date) - new Date(a.date));
+        if (filter) records = records.filter(r => r.studentName.toLowerCase().includes(filter.toLowerCase()) || (r.date && r.date.includes(filter)));
+        if (records.length === 0) { container.innerHTML = `<div class="empty-state">📭 No records found</div>`; return; }
+        container.innerHTML = records.map(rec => `<div class="record-item"><div><h4>🙏 ${escapeHtml(rec.studentName)} <span class="branch-badge">${escapeHtml(rec.branch || '—')}</span></h4><p>📚 ${escapeHtml(rec.class || '—')}</p><div style="display:flex;gap:1rem;margin-top:0.3rem;"><span>📅 ${rec.date}</span><span class="in-time">🟢 In: ${rec.inTime || rec.time || '—'}</span><span class="out-time">🔴 Out: ${rec.outTime || '—'}</span></div></div><div style="display:flex;gap:0.5rem;"><span class="badge ${rec.status.toLowerCase()}">${rec.status}</span><button class="icon-btn edit-attendance" data-id="${rec.id}">✏️ Edit</button><button class="icon-btn delete-attendance" data-id="${rec.id}">🗑️ Delete</button></div></div>`).join('');
+        document.querySelectorAll('.edit-attendance').forEach(btn => btn.addEventListener('click', () => editAttendanceRecord(btn.dataset.id)));
+        document.querySelectorAll('.delete-attendance').forEach(btn => btn.addEventListener('click', () => deleteAttendanceRecord(btn.dataset.id)));
     }
 
     function updateDashboardStats(stats) {
         if (!stats) return;
         document.getElementById('totalStudentsCount').innerText = stats.totalStudents || 0;
-        
-        const today = new Date().toISOString().slice(0, 10);
+        const today = new Date().toISOString().slice(0,10);
         const todayRecords = attendanceRecords.filter(r => r.date === today);
         const presentToday = todayRecords.filter(r => r.status === "Present").length;
-        
         document.getElementById('todayAttendanceCount').innerHTML = todayRecords.length ? `${presentToday} / ${todayRecords.length}` : "0 / 0";
-        let percentToday = todayRecords.length ? (presentToday / todayRecords.length * 100).toFixed(1) : 0;
-        document.getElementById('todayPercentage').innerHTML = `${percentToday}% present`;
-        
+        let pt = todayRecords.length ? (presentToday/todayRecords.length*100).toFixed(1) : 0;
+        document.getElementById('todayPercentage').innerHTML = `${pt}% present`;
         const totalPresent = attendanceRecords.filter(r => r.status === "Present").length;
-        const percentOverall = attendanceRecords.length ? (totalPresent / attendanceRecords.length * 100).toFixed(1) : 0;
-        document.getElementById('overallPercentText').innerHTML = `${percentOverall}% overall (${totalPresent}/${attendanceRecords.length})`;
-        document.getElementById('overallProgressBar').style.width = `${percentOverall}%`;
-        
-        const recent = [...attendanceRecords].sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date)).slice(-5).reverse();
+        const po = attendanceRecords.length ? (totalPresent/attendanceRecords.length*100).toFixed(1) : 0;
+        document.getElementById('overallPercentText').innerHTML = `${po}% overall (${totalPresent}/${attendanceRecords.length})`;
+        document.getElementById('overallProgressBar').style.width = `${po}%`;
+        const recent = [...attendanceRecords].slice(-5).reverse();
         const recentDiv = document.getElementById('recentAttendanceList');
-        if (recentDiv) {
-            recentDiv.innerHTML = recent.map(r => `
-                <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                    📌 ${r.studentName} - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong class="badge ${r.status.toLowerCase()}">${r.status}</strong>
-                </div>
-            `).join('') || "<div class='empty-state'>No records found</div>";
-        }
+        if (recentDiv) recentDiv.innerHTML = recent.map(r => `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">📌 ${r.studentName} - ${r.date} | In: ${r.inTime || '—'} Out: ${r.outTime || '—'} | <strong>${r.status}</strong></div>`).join('') || "<div class='empty-state'>No records</div>";
     }
 
     function renderAll() {
@@ -1411,74 +1071,45 @@
         loadStats();
     }
 
-    function closeModal() {
-        document.getElementById('studentModal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('studentModal').style.display = 'none'; }
 
-    // Event Listeners
     document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('studentName').value.trim();
         if (!name) { alert("Name required"); return; }
-        if (students.some(s => s.name && s.name.toLowerCase() === name.toLowerCase())) { alert("Student already exists"); return; }
-        
-        const days = [];
-        document.querySelectorAll('#workingDaysGrid input[type="checkbox"]:checked').forEach(cb => {
-            days.push(cb.value);
-        });
-        
-        const inTime = document.getElementById('defaultInTime').value;
-        const outTime = document.getElementById('defaultOutTime').value;
-        
+        const days = [...document.querySelectorAll('#workingDaysGrid input:checked')].map(cb => cb.value);
         await addStudentToDB({
-            name: name,
-            branch: document.getElementById('studentBranch').value.trim(),
-            class: document.getElementById('studentClass').value.trim(),
-            days: days,
-            inTime: inTime,
-            outTime: outTime,
+            name, branch: document.getElementById('studentBranch').value.trim(),
+            class: document.getElementById('studentClass').value.trim(), days,
+            inTime: document.getElementById('defaultInTime').value,
+            outTime: document.getElementById('defaultOutTime').value,
             phone: document.getElementById('phone').value.trim()
         });
         document.getElementById('studentForm').reset();
-        document.querySelectorAll('#workingDaysGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
-        document.getElementById('defaultInTime').value = '09:00';
-        document.getElementById('defaultOutTime').value = '17:00';
+        document.querySelectorAll('#workingDaysGrid input').forEach(cb => cb.checked = false);
     });
 
-    document.getElementById('refreshDataBtn')?.addEventListener('click', async () => { 
-        await Promise.all([loadStudents(), loadAttendance()]);
-        showToast("Data refreshed"); 
-    });
-    
+    document.getElementById('refreshDataBtn')?.addEventListener('click', async () => { await Promise.all([loadStudents(), loadAttendance()]); showToast("Data refreshed"); });
     document.getElementById('saveEditedDaysBtn')?.addEventListener('click', saveEditedDays);
     
     document.getElementById('exportCSVBtn')?.addEventListener('click', () => {
-        let csv = "Student Name,Branch/Office,Class,Working Days,Default In Time,Default Out Time,Phone,Attendance Date,Attendance In Time,Attendance Out Time,Status\n";
+        let csv = "Student Name,Branch,Class,Working Days,Default In,Default Out,Phone,Date,In Time,Out Time,Status\n";
         attendanceRecords.forEach(r => { 
-            const student = students.find(s => s.id === r.studentId);
-            const workingDays = student?.days?.join('; ') || '';
-            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${workingDays}","${student?.inTime || ''}","${student?.outTime || ''}","${student?.phone || ''}","${r.date}","${r.inTime || ''}","${r.outTime || ''}","${r.status}"\n`; 
+            const s = students.find(s => s.id === r.studentId);
+            csv += `"${r.studentName}","${r.branch || ''}","${r.class || ''}","${s?.days?.join(';') || ''}","${s?.inTime || ''}","${s?.outTime || ''}","${s?.phone || ''}","${r.date}","${r.inTime || ''}","${r.outTime || ''}","${r.status}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `attendance_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.download = `attendance_${new Date().toISOString().slice(0,10)}.csv`;
         link.click();
         showToast("CSV exported");
     });
 
     document.getElementById('exportPDFBtn')?.addEventListener('click', () => {
-        let html = `<html><head><title>Attendance Report</title><style>body{font-family:sans-serif;} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px;text-align:left}</style></head>
-            <body><h2>Thirulingeshwar Class - Complete Attendance Report</h2>
-            <p>Generated: ${new Date().toLocaleString()}</p>
-            <p>Total Students: ${students.length} | Total Records: ${attendanceRecords.length}</p>
-            <table border="1"><tr><th>Student Name</th><th>Branch/Office</th><th>Class</th><th>Working Days</th><th>Default In Time</th><th>Default Out Time</th><th>Phone</th><th>Attendance Date</th><th>In Time</th><th>Out Time</th><th>Status</th></tr>`;
-        attendanceRecords.forEach(r => { 
-            const student = students.find(s => s.id === r.studentId);
-            const workingDays = student?.days?.join(', ') || '';
-            html += `<tr><td>${r.studentName}${student?.id || ''}</td><td>${r.branch || ''}${student?.id || ''}</td><td>${r.class || ''}${student?.id || ''}</td><td>${workingDays}${student?.id || ''}</td><td>${student?.inTime || ''}${student?.id || ''}</td><td>${student?.outTime || ''}${student?.id || ''}</td><td>${student?.phone || ''}${student?.id || ''}</td><td>${r.date}${student?.id || ''}</td><td>${r.inTime || ''}${student?.id || ''}</td><td>${r.outTime || ''}${student?.id || ''}</td><td>${r.status}${student?.id || ''}</tr>`; 
-        });
-        html += `<tr></body></html>`;
+        let html = `<html><head><title>Attendance Report</title><style>body{font-family:sans-serif;} table{border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;}</style></head><body><h2>Thirulingeshwar Class - Attendance Report</h2><p>Generated: ${new Date().toLocaleString()}</p><table border="1"><tr><th>Name</th><th>Branch</th><th>Class</th><th>Date</th><th>In Time</th><th>Out Time</th><th>Status</th></tr>`;
+        attendanceRecords.forEach(r => { html += `<tr><td>${r.studentName}${student?._id || ''}</td><td>${r.branch || ''}${student?._id || ''}</td><td>${r.class || ''}${student?._id || ''}</td><td>${r.date}${student?._id || ''}</td><td>${r.inTime || ''}${student?._id || ''}</td><td>${r.outTime || ''}${student?._id || ''}</td><td>${r.status}${student?._id || ''}</tr>`; });
+        html += `</tr></body></html>`;
         html = html.replace(/\${student?._id.*?\}/g, '');
         const win = window.open();
         win.document.write(html);
@@ -1487,15 +1118,9 @@
         showToast("PDF generated");
     });
 
-    // Navigation
     async function init() {
         await Promise.all([loadStudents(), loadAttendance()]);
-        
-        setTimeout(() => {
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-        }, 500);
-        
+        setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; document.getElementById('appContainer').style.display = 'block'; }, 500);
         const pages = ['dashboardPage', 'addStudentPage', 'attendancePage', 'recordsPage'];
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1507,19 +1132,13 @@
                 renderAll();
             });
         });
-        
         document.getElementById('studentSearchInput')?.addEventListener('input', (e) => renderStudentList(e.target.value));
         document.getElementById('attendanceSearch')?.addEventListener('input', () => renderAttendancePageList());
         document.getElementById('recordsSearchInput')?.addEventListener('input', (e) => renderRecordsPage(e.target.value));
-        document.getElementById('clearSearchRecords')?.addEventListener('click', () => { 
-            document.getElementById('recordsSearchInput').value = ''; 
-            renderRecordsPage(''); 
-        });
-        
+        document.getElementById('clearSearchRecords')?.addEventListener('click', () => { document.getElementById('recordsSearchInput').value = ''; renderRecordsPage(''); });
         document.querySelector('.nav-btn[data-page="dashboard"]').click();
     }
 
-    // Dark mode
     const darkToggle = document.getElementById('darkModeToggle');
     darkToggle?.addEventListener('click', () => {
         document.body.classList.toggle('dark');
