@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Thirulingeshwar | Fee & Attendance Mgmt</title>
+    <title>K. Thirulingeshwar | Fee & Attendance Mgmt</title>
     <style>
         * {
             margin: 0;
@@ -23,6 +23,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --info: #3b82f6;
+            --purple: #8b5cf6;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             --radius-card: 1.25rem;
         }
@@ -39,11 +40,7 @@
             flex-direction: column;
         }
 
-        .app-container { 
-            max-width: 1400px; 
-            margin: 0 auto;
-            flex: 1;
-        }
+        .app-container { max-width: 1400px; margin: 0 auto; flex: 1; }
         
         .top-bar {
             display: flex;
@@ -115,8 +112,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--border);
             border-radius: 1rem;
-            width: 380px;
-            max-height: 450px;
+            width: 400px;
+            max-height: 500px;
             overflow-y: auto;
             z-index: 1000;
             display: none;
@@ -131,18 +128,10 @@
         }
         .notification-item:hover { background: rgba(230, 126, 34, 0.2); }
         .notification-item.overdue { border-left: 4px solid var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .notification-item.last-day { border-left: 4px solid var(--warning); background: rgba(245, 158, 11, 0.15); }
+        .notification-item.completed { border-left: 4px solid var(--success); background: rgba(16, 185, 129, 0.1); }
         .notification-title { font-weight: bold; font-size: 1rem; margin-bottom: 0.3rem; }
         .notification-details { font-size: 0.85rem; color: var(--text-secondary); }
-        .pay-now-btn {
-            margin-top: 0.5rem;
-            background: var(--success);
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1rem;
-            color: white;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
 
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active-page { display: block; }
@@ -203,7 +192,8 @@
             border: 1px solid var(--border);
         }
         .student-list-item.fee-overdue { border-left: 4px solid var(--danger); background: rgba(239, 68, 68, 0.15); }
-        .student-list-item.fee-due-soon { border-left: 4px solid var(--warning); }
+        .student-list-item.last-day-class { border-left: 4px solid var(--warning); background: rgba(245, 158, 11, 0.15); }
+        .student-list-item.completed-class { border-left: 4px solid var(--success); background: rgba(16, 185, 129, 0.1); }
 
         .badge {
             padding: 0.25rem 0.75rem;
@@ -214,8 +204,8 @@
         .badge.present { background: #10b98120; color: #10b981; }
         .badge.absent { background: #ef444420; color: #ef4444; }
         .badge.no-class { background: #3b82f620; color: #3b82f6; }
-        .badge.fee-overdue { background: #ef444420; color: #ef4444; }
-        .badge.fee-due-soon { background: #f59e0b20; color: #f59e0b; }
+        .badge.last-day { background: #f59e0b20; color: #f59e0b; }
+        .badge.completed { background: #10b98120; color: #10b981; }
 
         .status-btn {
             padding: 0.5rem 1.2rem;
@@ -278,26 +268,10 @@
 
         .stats-number { font-size: 2rem; font-weight: 800; }
         
-        /* Enhanced Search Bar Styles */
-        .search-container {
-            margin-bottom: 1.5rem;
-        }
-        .search-input-group {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-        .search-input-group input {
-            flex: 1;
-            min-width: 200px;
-        }
-        .search-filter-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
+        .search-container { margin-bottom: 1.5rem; }
+        .search-input-group { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .search-input-group input { flex: 1; min-width: 200px; }
+        .search-filter-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
         .filter-chip {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border);
@@ -307,15 +281,8 @@
             font-size: 0.85rem;
             transition: all 0.2s;
         }
-        .filter-chip:hover {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-        }
-        .filter-chip.active {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-        }
+        .filter-chip:hover { background: rgba(230,126,34,0.3); border-color: var(--accent); }
+        .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         .progress-bar-container {
             background: rgba(0, 0, 0, 0.4);
@@ -324,7 +291,38 @@
             overflow: hidden;
         }
 
-        /* Modal Styles */
+        .class-progress-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .progress-stats {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.3rem;
+            font-size: 0.7rem;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .stat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .stat-dot.present { background: var(--success); }
+        .stat-dot.absent { background: var(--danger); }
+        .stat-dot.noclass { background: var(--info); }
+        .stat-dot.remaining { background: var(--text-secondary); }
+
+        .warning-text { color: var(--warning); font-weight: bold; }
+        .success-text { color: var(--success); }
+        .danger-text { color: var(--danger); }
+
         .modal {
             display: none;
             position: fixed;
@@ -343,7 +341,7 @@
             backdrop-filter: blur(10px);
             border-radius: 1.5rem;
             padding: 2rem;
-            max-width: 550px;
+            max-width: 600px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
@@ -358,10 +356,7 @@
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--accent);
         }
-        .modal-header h3 {
-            font-size: 1.5rem;
-            color: var(--accent);
-        }
+        .modal-header h3 { font-size: 1.5rem; color: var(--accent); }
         .close-modal {
             cursor: pointer;
             font-size: 1.8rem;
@@ -370,26 +365,14 @@
             color: var(--text-secondary);
             transition: all 0.2s;
         }
-        .close-modal:hover {
-            color: var(--danger);
-            background: none;
-            transform: scale(1.1);
-        }
+        .close-modal:hover { color: var(--danger); transform: scale(1.1); }
         .student-detail-row {
             display: flex;
             padding: 0.8rem 0;
             border-bottom: 1px solid var(--border);
         }
-        .detail-label {
-            width: 140px;
-            font-weight: 600;
-            color: var(--accent);
-        }
-        .detail-value {
-            flex: 1;
-            color: var(--text-primary);
-            word-break: break-word;
-        }
+        .detail-label { width: 140px; font-weight: 600; color: var(--accent); }
+        .detail-value { flex: 1; color: var(--text-primary); word-break: break-word; }
         .working-days-badge {
             display: inline-block;
             background: rgba(230,126,34,0.3);
@@ -398,28 +381,8 @@
             margin: 0.2rem;
             font-size: 0.75rem;
         }
-        .fee-status-indicator {
-            display: inline-block;
-            padding: 0.2rem 0.8rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-        .fee-status-paid { background: #10b98120; color: #10b981; border: 1px solid #10b981; }
-        .fee-status-overdue { background: #ef444420; color: #ef4444; border: 1px solid #ef4444; }
-        .fee-status-due-soon { background: #f59e0b20; color: #f59e0b; border: 1px solid #f59e0b; }
-        .fee-status-upcoming { background: #3b82f620; color: #3b82f6; border: 1px solid #3b82f6; }
 
-        .export-buttons {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        /* Footer Styles */
+        .export-buttons { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
         .footer {
             text-align: center;
             padding: 1.5rem;
@@ -430,22 +393,8 @@
             border: 1px solid var(--border);
             font-size: 0.9rem;
         }
-        .footer .heart {
-            color: var(--danger);
-            display: inline-block;
-            animation: heartbeat 1.5s ease infinite;
-        }
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        .footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
+        .footer .heart { color: var(--danger); display: inline-block; animation: heartbeat 1.5s ease infinite; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
         @media (max-width: 640px) {
             .top-bar { flex-direction: column; text-align: center; }
@@ -453,6 +402,7 @@
             .status-btn { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
             .student-detail-row { flex-direction: column; gap: 0.3rem; }
             .detail-label { width: 100%; }
+            .notification-panel { width: 320px; right: 10px; }
         }
     </style>
 </head>
@@ -462,7 +412,7 @@
     <div class="top-bar">
         <div class="logo">
             <div class="logo-text">
-                <h1>📖 Thirulingeshwar</h1>
+                <h1>📖 K. Thirulingeshwar</h1>
                 <p>Fee & Attendance Management System</p>
             </div>
         </div>
@@ -484,11 +434,11 @@
     </div>
 
     <div class="notification-panel" id="notificationPanel">
-        <div style="padding: 0.8rem; font-weight: bold; border-bottom: 1px solid var(--border);">⚠️ Fee Alerts & Reminders</div>
+        <div style="padding: 0.8rem; font-weight: bold; border-bottom: 1px solid var(--border);">🔔 All Notifications</div>
         <div id="notificationList"></div>
     </div>
 
-    <!-- Dashboard Page with Enhanced Search -->
+    <!-- Dashboard Page -->
     <div id="dashboardPage" class="page">
         <div class="card">
             <h2>📈 Dashboard Overview</h2>
@@ -496,6 +446,11 @@
                 <div class="stats-card"><h3>👩‍🎓 Total Students</h3><p class="stats-number" id="totalStudentsCount">0</p></div>
                 <div class="stats-card"><h3>💰 Overdue Fees</h3><p class="stats-number" id="totalPendingFees">₹0</p><small>students need to pay</small></div>
                 <div class="stats-card"><h3>📆 Today's Attendance</h3><p class="stats-number" id="todayAttendanceCount">0</p><small id="todayPercentage">0% present</small></div>
+            </div>
+            <div class="grid-2" style="margin-top: 1rem;">
+                <div class="stats-card"><h3>🔥 Last Day Alert</h3><p class="stats-number" id="lastDayCount">0</p><small>students have 1 day left</small></div>
+                <div class="stats-card"><h3>✅ Completed Classes</h3><p class="stats-number" id="completedCount">0</p><small>students finished all classes</small></div>
+                <div class="stats-card"><h3>📊 Total Classes Attended</h3><p class="stats-number" id="totalAttendedCount">0</p><small>across all students</small></div>
             </div>
             <div style="margin-top: 1.5rem;">
                 <h3>📊 Overall Attendance Rate</h3>
@@ -510,12 +465,11 @@
             </div>
         </div>
         
-        <!-- Enhanced Search Section for Dashboard -->
         <div class="card">
             <h3>🔍 Search Students</h3>
             <div class="search-container">
                 <div class="search-input-group">
-                    <input type="text" id="dashboardSearchInput" placeholder="Search by name, branch, class, or working day...">
+                    <input type="text" id="dashboardSearchInput" placeholder="Search by name, branch, class...">
                     <button id="clearDashboardSearch" class="btn-outline">Clear</button>
                 </div>
                 <div class="search-filter-buttons">
@@ -523,9 +477,9 @@
                     <span class="filter-chip" data-filter="name">👤 Name</span>
                     <span class="filter-chip" data-filter="branch">🏢 Branch</span>
                     <span class="filter-chip" data-filter="class">📚 Class</span>
-                    <span class="filter-chip" data-filter="workingday">📅 Working Day</span>
                     <span class="filter-chip" data-filter="feeoverdue">⚠️ Fee Overdue</span>
-                    <span class="filter-chip" data-filter="feepaid">✅ Fee Paid</span>
+                    <span class="filter-chip" data-filter="lastday">🔥 Last Day Left</span>
+                    <span class="filter-chip" data-filter="completed">✅ Completed</span>
                 </div>
             </div>
             <div id="dashboardSearchResults"></div>
@@ -540,6 +494,13 @@
                 <div class="form-group"><label>Student Name *</label><input type="text" id="studentName" required></div>
                 <div class="form-group"><label>Branch</label><input type="text" id="studentBranch"></div>
                 <div class="form-group"><label>Class</label><input type="text" id="studentClass"></div>
+                
+                <div style="background: rgba(0,0,0,0.3); border-radius: 1rem; padding: 1rem; margin-bottom: 1.2rem;">
+                    <h4 style="margin-bottom: 0.8rem; color: var(--accent);">📅 Class Progress Settings</h4>
+                    <div class="form-group"><label>Total Class Days (e.g., 15, 30, 45)</label><input type="number" id="totalClassDays" placeholder="Total classes in this course" value="15" min="1" max="365"></div>
+                    <p style="font-size: 0.7rem; color: var(--text-secondary);">💡 Present = Class Attended | Absent = Missed | No Class = No class scheduled</p>
+                </div>
+                
                 <div class="form-group"><label>Working Days</label>
                     <div class="days-grid">
                         <label class="day-checkbox"><input type="checkbox" value="Monday"> Mon</label>
@@ -556,7 +517,7 @@
                 <div class="form-group"><label>Phone Number</label><input type="tel" id="phone"></div>
                 <div class="form-group"><label>💰 Monthly Fee Amount (₹)</label><input type="number" id="feeAmount" placeholder="e.g., 2500" value="2500"></div>
                 <div class="form-group"><label>📅 Fee Due Date (Day of Month)</label><input type="number" id="feeDueDay" placeholder="e.g., 15" value="15" min="1" max="31"></div>
-                <button type="submit">💾 Save Student with Fee Details</button>
+                <button type="submit">💾 Save Student with All Details</button>
             </form>
         </div>
         <div class="card">
@@ -581,9 +542,9 @@
         <div class="card">
             <h2>✅ Mark Attendance</h2>
             <p style="margin-bottom: 1rem;">📌 <strong>Status Options:</strong> 
-                <span style="background:var(--success); padding:0.2rem 0.5rem; border-radius:0.5rem;">✅ Present</span> 
-                <span style="background:var(--danger); padding:0.2rem 0.5rem; border-radius:0.5rem;">❌ Absent</span> 
-                <span style="background:var(--info); padding:0.2rem 0.5rem; border-radius:0.5rem;">📚 No Class</span>
+                <span style="background:var(--success); padding:0.2rem 0.5rem; border-radius:0.5rem;">✅ Present (Class Attended +1)</span> 
+                <span style="background:var(--danger); padding:0.2rem 0.5rem; border-radius:0.5rem;">❌ Absent (Missed)</span> 
+                <span style="background:var(--info); padding:0.2rem 0.5rem; border-radius:0.5rem;">📚 No Class (No change)</span>
             </p>
             <div class="search-bar"><input type="text" id="attendanceSearch" placeholder="🔍 Filter students"></div>
             <div id="studentsAttendanceList"></div>
@@ -602,7 +563,7 @@
 
 <!-- Footer -->
 <div class="footer">
-    <p>Made with <span class="heart">❤️</span> by <strong>Thirulingeshwar</strong> | © 2024 Thirulingeshwar Attendance System</p>
+    <p>Made with <span class="heart">❤️</span> by <strong>K. Thirulingeshwar</strong> | © 2024 Attendance Management System</p>
 </div>
 
 <!-- View Student Details Modal -->
@@ -628,6 +589,10 @@
             <div class="form-group"><label>Student Name *</label><input type="text" id="editStudentName" required></div>
             <div class="form-group"><label>Branch</label><input type="text" id="editStudentBranch"></div>
             <div class="form-group"><label>Class</label><input type="text" id="editStudentClass"></div>
+            <div style="background: rgba(0,0,0,0.3); border-radius: 1rem; padding: 1rem; margin-bottom: 1.2rem;">
+                <h4 style="margin-bottom: 0.8rem; color: var(--accent);">📅 Class Progress Settings</h4>
+                <div class="form-group"><label>Total Class Days</label><input type="number" id="editTotalClassDays" min="1" max="365"></div>
+            </div>
             <div class="form-group"><label>Phone Number</label><input type="tel" id="editStudentPhone"></div>
             <div class="form-group"><label>Default In Time</label><input type="time" id="editInTime"></div>
             <div class="form-group"><label>Default Out Time</label><input type="time" id="editOutTime"></div>
@@ -646,48 +611,99 @@
     let currentFilter = 'all';
     let currentSearchTerm = '';
 
-    function getFeeStatus(student) {
-        if (!student.feeAmount || !student.feeDueDay) {
-            return { status: 'not_set', message: 'Not set', daysOverdue: 0, color: 'gray' };
-        }
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const currentMonth = today.getMonth();
-        const currentMonthStr = `${currentYear}-${currentMonth + 1}`;
-        if (student.feePaidForMonth === currentMonthStr) {
-            return { status: 'paid', message: '✅ Paid for this month', daysOverdue: 0, color: 'green' };
-        }
-        let dueDate = new Date(currentYear, currentMonth, student.feeDueDay);
-        if (dueDate < today && dueDate.getMonth() === currentMonth) {
-            dueDate = new Date(currentYear, currentMonth + 1, student.feeDueDay);
-        }
-        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-        if (daysUntilDue < 0) {
-            return { status: 'overdue', message: `⚠️ OVERDUE by ${Math.abs(daysUntilDue)} days! Amount: ₹${student.feeAmount}`, daysOverdue: Math.abs(daysUntilDue), color: 'red' };
-        }
-        if (daysUntilDue <= 5) {
-            return { status: 'due_soon', message: `⏰ Due in ${daysUntilDue} days - ₹${student.feeAmount}`, daysOverdue: 0, color: 'orange' };
-        }
-        return { status: 'upcoming', message: `📅 Due on ${student.feeDueDay}th - ₹${student.feeAmount}`, daysOverdue: 0, color: 'green' };
+    function getClassProgress(student) {
+        const totalDays = student.totalClassDays || 15;
+        const records = attendanceRecords.filter(r => r.studentId === student.id);
+        const presentCount = records.filter(r => r.status === 'Present').length;
+        const absentCount = records.filter(r => r.status === 'Absent').length;
+        const noClassCount = records.filter(r => r.status === 'No Class').length;
+        const attendedDays = presentCount;
+        const remainingDays = Math.max(0, totalDays - attendedDays);
+        const percentage = totalDays > 0 ? (attendedDays / totalDays * 100).toFixed(1) : 0;
+        
+        let classStatus = 'ongoing';
+        if (remainingDays === 0 && attendedDays > 0) classStatus = 'completed';
+        else if (remainingDays === 1) classStatus = 'last_day';
+        else classStatus = 'ongoing';
+        
+        return { totalDays, presentCount, absentCount, noClassCount, attendedDays, remainingDays, percentage, classStatus };
     }
 
-    function filterStudentsBySearch(studentsList, searchTerm, filterType) {
-        if (!searchTerm.trim() && filterType === 'all') return studentsList;
+    function getFeeStatus(student) {
+        if (!student.feeAmount || !student.feeDueDay) return { status: 'not_set', message: 'Not set', color: 'gray' };
+        const today = new Date();
+        const currentMonthStr = `${today.getFullYear()}-${today.getMonth() + 1}`;
+        if (student.feePaidForMonth === currentMonthStr) return { status: 'paid', message: '✅ Paid for this month', color: 'green' };
+        let dueDate = new Date(today.getFullYear(), today.getMonth(), student.feeDueDay);
+        if (dueDate < today && dueDate.getMonth() === today.getMonth()) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, student.feeDueDay);
+        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        if (daysUntilDue < 0) return { status: 'overdue', message: `⚠️ OVERDUE by ${Math.abs(daysUntilDue)} days! Amount: ₹${student.feeAmount}`, color: 'red' };
+        if (daysUntilDue <= 5) return { status: 'due_soon', message: `⏰ Due in ${daysUntilDue} days - ₹${student.feeAmount}`, color: 'orange' };
+        return { status: 'upcoming', message: `📅 Due on ${student.feeDueDay}th - ₹${student.feeAmount}`, color: 'green' };
+    }
+
+    function updateNotifications() {
+        const overdueStudents = students.filter(s => getFeeStatus(s).status === 'overdue');
+        const lastDayStudents = students.filter(s => getClassProgress(s).classStatus === 'last_day');
+        const completedStudents = students.filter(s => getClassProgress(s).classStatus === 'completed');
+        
+        const totalNotifications = overdueStudents.length + lastDayStudents.length + completedStudents.length;
+        document.getElementById('notificationCount').innerText = totalNotifications;
+        document.getElementById('lastDayCount').innerText = lastDayStudents.length;
+        document.getElementById('completedCount').innerText = completedStudents.length;
+        
+        const totalAttended = students.reduce((sum, s) => sum + getClassProgress(s).attendedDays, 0);
+        document.getElementById('totalAttendedCount').innerText = totalAttended;
+        
+        const notificationList = document.getElementById('notificationList');
+        let html = '';
+        
+        if (lastDayStudents.length > 0) {
+            html += `<div style="padding: 0.5rem; background: rgba(245,158,11,0.2); font-weight: bold;">🔥 LAST DAY ALERT (${lastDayStudents.length})</div>`;
+            lastDayStudents.forEach(s => {
+                const progress = getClassProgress(s);
+                html += `<div class="notification-item last-day" data-id="${s.id}"><div class="notification-title">⚠️ ${escapeHtml(s.name)} - LAST CLASS DAY!</div><div class="notification-details">📅 Classes Attended: ${progress.attendedDays}/${progress.totalDays} days</div><div class="notification-details">⏳ Only ${progress.remainingDays} day remaining! Complete the final class.</div><div class="notification-details">📞 Phone: ${s.phone || 'Not provided'}</div><button class="view-class-btn" onclick="event.stopPropagation(); showStudentDetails('${s.id}')">👁️ View Details</button><button class="pay-now-btn" onclick="event.stopPropagation(); document.querySelector('.nav-btn[data-page=\"attendance\"]').click();">✅ Mark Attendance</button></div>`;
+            });
+        }
+        
+        if (completedStudents.length > 0) {
+            html += `<div style="padding: 0.5rem; background: rgba(16,185,129,0.2); font-weight: bold;">✅ CLASS COMPLETED (${completedStudents.length})</div>`;
+            completedStudents.forEach(s => {
+                const progress = getClassProgress(s);
+                html += `<div class="notification-item completed" data-id="${s.id}"><div class="notification-title">🎉 ${escapeHtml(s.name)} - CLASS COMPLETED!</div><div class="notification-details">📅 Completed ${progress.attendedDays}/${progress.totalDays} days (${progress.percentage}%)</div><div class="notification-details">✅ Total Classes Attended: ${progress.attendedDays}</div><button class="view-class-btn" onclick="event.stopPropagation(); showStudentDetails('${s.id}')">👁️ View Certificate</button></div>`;
+            });
+        }
+        
+        if (overdueStudents.length > 0) {
+            html += `<div style="padding: 0.5rem; background: rgba(239,68,68,0.2); font-weight: bold;">🔴 OVERDUE FEES (${overdueStudents.length})</div>`;
+            overdueStudents.forEach(s => {
+                const status = getFeeStatus(s);
+                html += `<div class="notification-item overdue" data-id="${s.id}"><div class="notification-title">⚠️ ${escapeHtml(s.name)} - Fee Overdue</div><div class="notification-details">${status.message}</div><div class="notification-details">📞 Phone: ${s.phone || 'Not provided'}</div><button class="pay-now-btn" onclick="event.stopPropagation(); markFeeAsPaid('${s.id}')">💰 Mark as Paid</button></div>`;
+            });
+        }
+        
+        if (totalNotifications === 0) html = '<div style="padding: 1rem; text-align: center;">✅ No new notifications! Everything is up to date.</div>';
+        notificationList.innerHTML = html;
+        
+        const pendingSum = overdueStudents.reduce((sum, s) => sum + (s.feeAmount || 0), 0);
+        document.getElementById('totalPendingFees').innerHTML = `₹${pendingSum}`;
+    }
+
+    function filterStudents(studentsList, searchTerm, filterType) {
         const term = searchTerm.toLowerCase().trim();
         return studentsList.filter(student => {
+            const progress = getClassProgress(student);
             if (filterType === 'feeoverdue') return getFeeStatus(student).status === 'overdue';
-            if (filterType === 'feepaid') return getFeeStatus(student).status === 'paid';
-            if (!term && filterType !== 'all') return true;
+            if (filterType === 'lastday') return progress.classStatus === 'last_day';
+            if (filterType === 'completed') return progress.classStatus === 'completed';
             if (!term) return true;
             switch(filterType) {
                 case 'name': return student.name.toLowerCase().includes(term);
                 case 'branch': return student.branch && student.branch.toLowerCase().includes(term);
                 case 'class': return student.class && student.class.toLowerCase().includes(term);
-                case 'workingday': return student.days && student.days.some(day => day.toLowerCase().includes(term));
                 default: return student.name.toLowerCase().includes(term) ||
                            (student.branch && student.branch.toLowerCase().includes(term)) ||
-                           (student.class && student.class.toLowerCase().includes(term)) ||
-                           (student.days && student.days.some(day => day.toLowerCase().includes(term)));
+                           (student.class && student.class.toLowerCase().includes(term));
             }
         });
     }
@@ -695,15 +711,22 @@
     function renderDashboardSearchResults() {
         const container = document.getElementById('dashboardSearchResults');
         if (!container) return;
-        const filtered = filterStudentsBySearch(students, currentSearchTerm, currentFilter);
-        if (filtered.length === 0) {
-            container.innerHTML = `<div class="empty-state">🔍 No students found matching "${currentSearchTerm || currentFilter}"</div>`;
-            return;
-        }
+        const filtered = filterStudents(students, currentSearchTerm, currentFilter);
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">🔍 No students found</div>`; return; }
         container.innerHTML = filtered.map(s => {
+            const progress = getClassProgress(s);
             const feeStatus = getFeeStatus(s);
+            let specialClass = '';
+            let specialBadge = '';
+            if (progress.classStatus === 'last_day') {
+                specialClass = 'last-day-class';
+                specialBadge = '<span class="badge last-day" style="margin-left:0.5rem;">🔥 Last Day!</span>';
+            } else if (progress.classStatus === 'completed') {
+                specialClass = 'completed-class';
+                specialBadge = '<span class="badge completed" style="margin-left:0.5rem;">✅ Completed!</span>';
+            }
             const overdueClass = feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : '');
-            return `<div class="student-list-item ${overdueClass}"><div><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4><p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p><p>📅 Working Days: ${s.days && s.days.length ? s.days.join(', ') : 'Not set'}</p><p>⏰ In: ${s.inTime || '09:00'} | Out: ${s.outTime || '17:00'}</p><p class="fee-status" style="color: ${feeStatus.color === 'red' ? '#ef4444' : (feeStatus.color === 'orange' ? '#f59e0b' : '#10b981')}">💰 ${feeStatus.message}</p></div><div class="action-group"><button class="icon-btn view-student-dash" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student-dash" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button>${feeStatus.status !== 'paid' ? `<button class="icon-btn pay-fee-dash" data-id="${s.id}" style="background:var(--success);">💰 Pay Fee</button>` : '<button class="icon-btn" disabled style="opacity:0.5;">✅ Paid</button>'}</div></div>`;
+            return `<div class="student-list-item ${overdueClass} ${specialClass}"><div><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span>${specialBadge}</h4><p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p><div class="class-progress-card"><div style="display:flex;justify-content:space-between;"><strong>📅 Classes Attended:</strong> <span>${progress.attendedDays} / ${progress.totalDays} days (${progress.percentage}%)</span></div><div class="progress-bar-container"><div style="width:${progress.percentage}%;height:12px;background:${progress.classStatus === 'completed' ? '#10b981' : (progress.classStatus === 'last_day' ? '#f59e0b' : 'var(--success)')};border-radius:1rem;"></div></div><div class="progress-stats"><span class="stat-item"><span class="stat-dot present"></span> Attended: ${progress.presentCount}</span><span class="stat-item"><span class="stat-dot absent"></span> Absent: ${progress.absentCount}</span><span class="stat-item"><span class="stat-dot noclass"></span> No Class: ${progress.noClassCount}</span><span class="stat-item"><span class="stat-dot remaining"></span> Remaining: ${progress.remainingDays}</span></div>${progress.classStatus === 'last_day' ? '<p class="warning-text" style="font-size:0.7rem; margin-top:0.3rem;">⚠️ LAST CLASS DAY! Complete today\'s attendance.</p>' : (progress.classStatus === 'completed' ? '<p class="success-text" style="font-size:0.7rem; margin-top:0.3rem;">✅ All classes completed! Total ${progress.attendedDays} classes attended.</p>' : `<p class="success-text" style="font-size:0.7rem; margin-top:0.3rem;">✅ ${progress.attendedDays} classes completed so far.</p>`)}</div><p class="fee-status" style="color: ${feeStatus.color === 'red' ? '#ef4444' : (feeStatus.color === 'orange' ? '#f59e0b' : '#10b981')}">💰 ${feeStatus.message}</p></div><div class="action-group"><button class="icon-btn view-student-dash" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student-dash" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button>${feeStatus.status !== 'paid' ? `<button class="icon-btn pay-fee-dash" data-id="${s.id}" style="background:var(--success);">💰 Pay Fee</button>` : '<button class="icon-btn" disabled style="opacity:0.5;">✅ Paid</button>'}</div></div>`;
         }).join('');
         document.querySelectorAll('.view-student-dash').forEach(btn => btn.addEventListener('click', () => showStudentDetails(btn.dataset.id)));
         document.querySelectorAll('.edit-student-dash').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
@@ -713,56 +736,23 @@
     function showStudentDetails(studentId) {
         const student = students.find(s => s.id === studentId);
         if (!student) return;
+        const progress = getClassProgress(student);
         const feeStatus = getFeeStatus(student);
-        let feeStatusClass = '';
-        if (feeStatus.status === 'paid') feeStatusClass = 'fee-status-paid';
-        else if (feeStatus.status === 'overdue') feeStatusClass = 'fee-status-overdue';
-        else if (feeStatus.status === 'due_soon') feeStatusClass = 'fee-status-due-soon';
-        else feeStatusClass = 'fee-status-upcoming';
         const workingDaysHtml = student.days && student.days.length ? student.days.map(day => `<span class="working-days-badge">${day.substring(0,3)}</span>`).join('') : '<span class="working-days-badge">Not set</span>';
-        const html = `<div class="student-detail-row"><div class="detail-label">👤 Student Name:</div><div class="detail-value"><strong>${escapeHtml(student.name)}</strong></div></div><div class="student-detail-row"><div class="detail-label">🏢 Branch:</div><div class="detail-value">${escapeHtml(student.branch || '—')}</div></div><div class="student-detail-row"><div class="detail-label">📚 Class:</div><div class="detail-value">${escapeHtml(student.class || '—')}</div></div><div class="student-detail-row"><div class="detail-label">📅 Working Days:</div><div class="detail-value">${workingDaysHtml}</div></div><div class="student-detail-row"><div class="detail-label">⏰ Default In Time:</div><div class="detail-value">${student.inTime || '09:00'}</div></div><div class="student-detail-row"><div class="detail-label">⏰ Default Out Time:</div><div class="detail-value">${student.outTime || '17:00'}</div></div><div class="student-detail-row"><div class="detail-label">📞 Phone Number:</div><div class="detail-value">${escapeHtml(student.phone) || '—'}</div></div><div class="student-detail-row"><div class="detail-label">💰 Fee Amount:</div><div class="detail-value">₹${student.feeAmount || 'Not set'}</div></div><div class="student-detail-row"><div class="detail-label">📅 Fee Due Date:</div><div class="detail-value">Every ${student.feeDueDay ? `${student.feeDueDay}th` : 'Not set'} of month</div></div><div class="student-detail-row"><div class="detail-label">💳 Fee Status:</div><div class="detail-value"><span class="fee-status-indicator ${feeStatusClass}">${feeStatus.message}</span></div></div>${student.lastFeePaidDate ? `<div class="student-detail-row"><div class="detail-label">✅ Last Paid:</div><div class="detail-value">${new Date(student.lastFeePaidDate).toLocaleDateString()}</div></div>` : ''}<div class="student-detail-row"><div class="detail-label">🆔 Student ID:</div><div class="detail-value"><small>${student.id}</small></div></div>`;
+        const classStatusHtml = progress.classStatus === 'last_day' ? '<span class="badge last-day" style="background:#f59e0b20;color:#f59e0b;">🔥 LAST DAY - Complete Today!</span>' : (progress.classStatus === 'completed' ? '<span class="badge completed" style="background:#10b98120;color:#10b981;">✅ COMPLETED - Certificate Ready</span>' : '<span class="badge" style="background:#3b82f620;color:#3b82f6;">📚 In Progress</span>');
+        const html = `<div class="student-detail-row"><div class="detail-label">👤 Student Name:</div><div class="detail-value"><strong>${escapeHtml(student.name)}</strong></div></div><div class="student-detail-row"><div class="detail-label">🏢 Branch:</div><div class="detail-value">${escapeHtml(student.branch || '—')}</div></div><div class="student-detail-row"><div class="detail-label">📚 Class:</div><div class="detail-value">${escapeHtml(student.class || '—')}</div></div><div class="student-detail-row"><div class="detail-label">📅 Total Class Days:</div><div class="detail-value">${student.totalClassDays || 15} days</div></div><div class="student-detail-row"><div class="detail-label">📊 Class Progress:</div><div class="detail-value"><strong>Classes Attended: ${progress.attendedDays} out of ${progress.totalDays}</strong> (${progress.percentage}%)<br>${classStatusHtml}<br>✅ Present (Attended): ${progress.presentCount} | ❌ Absent (Missed): ${progress.absentCount} | 📚 No Class: ${progress.noClassCount}<br>⏳ Remaining Classes: ${progress.remainingDays}</div></div><div class="student-detail-row"><div class="detail-label">📅 Working Days:</div><div class="detail-value">${workingDaysHtml}</div></div><div class="student-detail-row"><div class="detail-label">⏰ Default In Time:</div><div class="detail-value">${student.inTime || '09:00'}</div></div><div class="student-detail-row"><div class="detail-label">⏰ Default Out Time:</div><div class="detail-value">${student.outTime || '17:00'}</div></div><div class="student-detail-row"><div class="detail-label">📞 Phone Number:</div><div class="detail-value">${escapeHtml(student.phone) || '—'}</div></div><div class="student-detail-row"><div class="detail-label">💰 Fee Amount:</div><div class="detail-value">₹${student.feeAmount || 'Not set'}</div></div><div class="student-detail-row"><div class="detail-label">📅 Fee Due Date:</div><div class="detail-value">Every ${student.feeDueDay ? `${student.feeDueDay}th` : 'Not set'} of month</div></div>${progress.classStatus === 'last_day' ? '<div class="student-detail-row"><div class="detail-label">⚠️ Alert:</div><div class="detail-value" style="color:#f59e0b;">This student has only 1 class day remaining! Please mark today\'s attendance as Present.</div></div>' : (progress.classStatus === 'completed' ? '<div class="student-detail-row"><div class="detail-label">🎉 Congratulations:</div><div class="detail-value" style="color:#10b981;">Student has completed all ${progress.totalDays} classes! Certificate can be issued.</div></div>' : '')}`;
         document.getElementById('viewStudentContent').innerHTML = html;
         document.getElementById('viewStudentModal').style.display = 'flex';
     }
     
     function closeViewModal() { document.getElementById('viewStudentModal').style.display = 'none'; }
 
-    function updateNotifications() {
-        const overdueStudents = students.filter(s => getFeeStatus(s).status === 'overdue');
-        const dueSoonStudents = students.filter(s => getFeeStatus(s).status === 'due_soon');
-        const totalNotifications = overdueStudents.length + dueSoonStudents.length;
-        document.getElementById('notificationCount').innerText = totalNotifications;
-        const notificationList = document.getElementById('notificationList');
-        let html = '';
-        if (overdueStudents.length > 0) {
-            html += `<div style="padding: 0.5rem; background: rgba(239,68,68,0.2); font-weight: bold;">🔴 OVERDUE (${overdueStudents.length})</div>`;
-            overdueStudents.forEach(s => {
-                const status = getFeeStatus(s);
-                html += `<div class="notification-item overdue" data-id="${s.id}"><div class="notification-title">⚠️ ${escapeHtml(s.name)}</div><div class="notification-details">${status.message}</div><div class="notification-details">📞 Phone: ${s.phone || 'Not provided'}</div><button class="pay-now-btn" onclick="event.stopPropagation(); markFeeAsPaid('${s.id}')">💰 Mark as Paid</button></div>`;
-            });
-        }
-        if (dueSoonStudents.length > 0) {
-            html += `<div style="padding: 0.5rem; background: rgba(245,158,11,0.2); font-weight: bold;">🟡 DUE SOON (${dueSoonStudents.length})</div>`;
-            dueSoonStudents.forEach(s => {
-                const status = getFeeStatus(s);
-                html += `<div class="notification-item" data-id="${s.id}"><div class="notification-title">⏰ ${escapeHtml(s.name)}</div><div class="notification-details">${status.message}</div><div class="notification-details">Due date: ${s.feeDueDay}th of month</div><button class="pay-now-btn" onclick="event.stopPropagation(); markFeeAsPaid('${s.id}')">💰 Mark as Paid</button></div>`;
-            });
-        }
-        if (totalNotifications === 0) html = '<div style="padding: 1rem; text-align: center;">✅ All fees are up to date!</div>';
-        notificationList.innerHTML = html;
-        const pendingSum = overdueStudents.reduce((sum, s) => sum + (s.feeAmount || 0), 0);
-        document.getElementById('totalPendingFees').innerHTML = `₹${pendingSum}`;
-        const bell = document.getElementById('notificationBell');
-        bell.style.animation = totalNotifications > 0 ? 'shake 0.5s ease infinite' : 'none';
-    }
-
     async function markFeeAsPaid(studentId) {
         const student = students.find(s => s.id === studentId);
         if (!student) return;
         const today = new Date();
         const paidForMonth = `${today.getFullYear()}-${today.getMonth() + 1}`;
-        const monthName = today.toLocaleString('default', { month: 'long' });
-        if (confirm(`Mark fee as PAID for ${student.name} for ${monthName} ${today.getFullYear()}?\nAmount: ₹${student.feeAmount}`)) {
+        if (confirm(`Mark fee as PAID for ${student.name} for this month?\nAmount: ₹${student.feeAmount}`)) {
             try {
                 await fetch(`${API_BASE}/api/students/${studentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ feePaidForMonth: paidForMonth, lastFeePaidDate: new Date().toISOString() }) });
                 await loadStudents();
@@ -778,6 +768,7 @@
         document.getElementById('editStudentName').value = student.name || '';
         document.getElementById('editStudentBranch').value = student.branch || '';
         document.getElementById('editStudentClass').value = student.class || '';
+        document.getElementById('editTotalClassDays').value = student.totalClassDays || 15;
         document.getElementById('editStudentPhone').value = student.phone || '';
         document.getElementById('editInTime').value = student.inTime || '09:00';
         document.getElementById('editOutTime').value = student.outTime || '17:00';
@@ -794,6 +785,7 @@
             name: document.getElementById('editStudentName').value.trim(),
             branch: document.getElementById('editStudentBranch').value.trim(),
             class: document.getElementById('editStudentClass').value.trim(),
+            totalClassDays: parseInt(document.getElementById('editTotalClassDays').value) || 15,
             phone: document.getElementById('editStudentPhone').value.trim(),
             inTime: document.getElementById('editInTime').value,
             outTime: document.getElementById('editOutTime').value,
@@ -802,9 +794,10 @@
         };
         if (!updateData.name) { showToast('❌ Student name is required'); return; }
         try {
-            const response = await fetch(`${API_BASE}/api/students/${studentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updateData) });
-            if (response.ok) { await loadStudents(); showToast('✅ Student updated successfully!'); closeEditModal(); }
-            else showToast('❌ Failed to update student');
+            await fetch(`${API_BASE}/api/students/${studentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updateData) });
+            await loadStudents();
+            showToast('✅ Student updated successfully!');
+            closeEditModal();
         } catch (error) { showToast('❌ Error updating student'); }
     }
 
@@ -814,7 +807,7 @@
     }
 
     async function loadAttendance() {
-        try { const response = await fetch(`${API_BASE}/api/attendance`); attendanceRecords = await response.json(); renderAll(); } 
+        try { const response = await fetch(`${API_BASE}/api/attendance`); attendanceRecords = await response.json(); updateNotifications(); renderAll(); renderDashboardSearchResults(); } 
         catch (error) { console.error('Error loading attendance:', error); }
     }
 
@@ -837,13 +830,28 @@
         if (!student) return;
         const selection = currentAttendanceSelections[studentId];
         if (!selection || !selection.status) { showToast(`❌ Please select Present/Absent/No Class for ${student.name}`); return; }
-        const attendanceData = [{ studentId: student.id, studentName: student.name, class: student.class || '', branch: student.branch || '', status: selection.status, inTime: selection.inTime || student.inTime || '09:00', outTime: selection.outTime || student.outTime || '17:00', date: selection.date || new Date().toISOString().slice(0,10) }];
+        
+        const attendanceData = [{
+            studentId: student.id,
+            studentName: student.name,
+            class: student.class || '',
+            branch: student.branch || '',
+            status: selection.status,
+            inTime: selection.inTime || student.inTime || '09:00',
+            outTime: selection.outTime || student.outTime || '17:00',
+            date: selection.date || new Date().toISOString().slice(0,10)
+        }];
+        
         try {
             await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attendance: attendanceData }) });
             await loadAttendance();
             delete currentAttendanceSelections[studentId];
-            showToast(`✅ ${student.name}'s attendance saved!`);
+            
+            const updatedProgress = getClassProgress(student);
+            showToast(`✅ ${student.name}'s attendance saved! ${selection.status === 'Present' ? '+1 class attended!' : (selection.status === 'Absent' ? 'Class missed' : 'No class recorded')} Total attended: ${updatedProgress.attendedDays}/${updatedProgress.totalDays}`);
+            
             renderAttendancePageList();
+            updateNotifications();
         } catch (error) { showToast(`❌ Failed to save attendance`); }
     }
 
@@ -863,62 +871,40 @@
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
-    function exportToCSV(data, filename, headers) {
-        let csv = headers.join(',') + '\n';
-        data.forEach(row => {
-            const rowValues = headers.map(h => {
-                let val = row[h] !== undefined ? row[h] : '';
-                if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) val = '"' + val.replace(/"/g, '""') + '"';
-                return val;
-            });
-            csv += rowValues.join(',') + '\n';
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        showToast(`✅ ${filename} downloaded!`);
-    }
-
     function exportAttendanceCSV() {
         const headers = ['Student Name', 'Branch', 'Class', 'Date', 'Status', 'In Time', 'Out Time'];
         const data = attendanceRecords.map(r => ({ 'Student Name': r.studentName, 'Branch': r.branch || '', 'Class': r.class || '', 'Date': r.date, 'Status': r.status, 'In Time': r.inTime || '', 'Out Time': r.outTime || '' }));
-        exportToCSV(data, `attendance_report_${new Date().toISOString().slice(0,10)}.csv`, headers);
+        let csv = headers.join(',') + '\n';
+        data.forEach(row => { csv += headers.map(h => { let val = row[h]; if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) val = '"' + val.replace(/"/g, '""') + '"'; return val; }).join(',') + '\n'; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `attendance_${new Date().toISOString().slice(0,10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
+        showToast('✅ Attendance CSV exported');
     }
 
     function exportFeeCSV() {
-        const headers = ['Student Name', 'Branch', 'Class', 'Phone', 'Fee Amount (₹)', 'Due Date (Day)', 'Payment Status', 'Last Paid Date'];
-        const data = students.map(s => { const feeStatus = getFeeStatus(s); return { 'Student Name': s.name, 'Branch': s.branch || '', 'Class': s.class || '', 'Phone': s.phone || '', 'Fee Amount (₹)': s.feeAmount || 0, 'Due Date (Day)': s.feeDueDay ? `${s.feeDueDay}th` : 'Not set', 'Payment Status': feeStatus.message, 'Last Paid Date': s.lastFeePaidDate ? new Date(s.lastFeePaidDate).toLocaleDateString() : 'Never' }; });
-        exportToCSV(data, `fee_report_${new Date().toISOString().slice(0,10)}.csv`, headers);
+        const headers = ['Student Name', 'Branch', 'Class', 'Phone', 'Total Class Days', 'Classes Attended', 'Present', 'Absent', 'No Class', 'Remaining Days', 'Completion %', 'Class Status', 'Fee Amount', 'Payment Status'];
+        const data = students.map(s => { const progress = getClassProgress(s); const feeStatus = getFeeStatus(s); return { 'Student Name': s.name, 'Branch': s.branch || '', 'Class': s.class || '', 'Phone': s.phone || '', 'Total Class Days': progress.totalDays, 'Classes Attended': progress.attendedDays, 'Present': progress.presentCount, 'Absent': progress.absentCount, 'No Class': progress.noClassCount, 'Remaining Days': progress.remainingDays, 'Completion %': progress.percentage + '%', 'Class Status': progress.classStatus === 'last_day' ? 'Last Day Left' : (progress.classStatus === 'completed' ? 'Completed' : 'In Progress'), 'Fee Amount': s.feeAmount || 0, 'Payment Status': feeStatus.message }; });
+        let csv = headers.join(',') + '\n';
+        data.forEach(row => { csv += headers.map(h => { let val = row[h]; if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) val = '"' + val.replace(/"/g, '""') + '"'; return val; }).join(',') + '\n'; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `class_progress_report_${new Date().toISOString().slice(0,10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
+        showToast('✅ Class Progress CSV exported');
     }
 
     function exportAttendancePDF() {
-        const win = window.open();
-        const date = new Date().toLocaleString();
-        let html = `<!DOCTYPE html><html><head><title>Attendance Report</title><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#e67e22;text-align:center;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:10px;text-align:left;}th{background-color:#e67e22;color:white;}</style></head><body><h1>📖 Subbulakshmi Venkatesan</h1><h2>Attendance Report</h2><p><strong>Generated on:</strong> ${date}</p><p><strong>Total Students:</strong> ${students.length}</p><p><strong>Total Attendance Records:</strong> ${attendanceRecords.length}</p><table> hilab<th>Student Name</th><th>Branch</th><th>Class</th><th>Date</th><th>Status</th><th>In Time</th><th>Out Time</th></tr>`;
+        const win = window.open(); const date = new Date().toLocaleString();
+        let html = `<!DOCTYPE html><html><head><title>Attendance Report</title><style>body{font-family:Arial;margin:40px;}h1{color:#e67e22;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;}th{background:#e67e22;color:white;}</style></head><body><h1>K. Thirulingeshwar - Attendance Report</h1><p>Generated: ${date}</p><table><th>Student</th><th>Branch</th><th>Class</th><th>Date</th><th>Status</th><th>In Time</th><th>Out Time</th></tr>`;
         attendanceRecords.forEach(r => { html += `<tr><td>${escapeHtml(r.studentName)}</td><td>${escapeHtml(r.branch || '—')}</td><td>${escapeHtml(r.class || '—')}</td><td>${r.date}</td><td>${r.status}</td><td>${r.inTime || '—'}</td><td>${r.outTime || '—'}</td></tr>`; });
-        html += `</table><p style="text-align:center;margin-top:30px;color:#666;">Made with ❤️ by Thirulingeshwar</p></body></html>`;
-        win.document.write(html);
-        win.document.close();
-        win.print();
-        showToast('📄 Attendance PDF opened for printing');
+        html += `</table><p style="margin-top:30px;text-align:center;">Made with ❤️ by K. Thirulingeshwar</p></body></html>`;
+        win.document.write(html); win.document.close(); win.print();
     }
 
     function exportFeePDF() {
-        const win = window.open();
-        const date = new Date().toLocaleString();
-        let html = `<!DOCTYPE html><html><head><title>Fee Report</title><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#e67e22;text-align:center;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:10px;text-align:left;}th{background-color:#e67e22;color:white;}.overdue{color:#ef4444;font-weight:bold;}.paid{color:#10b981;font-weight:bold;}</style></head><body><h1>📖 Subbulakshmi Venkatesan</h1><h2>Fee Management Report</h2><p><strong>Generated on:</strong> ${date}</p><p><strong>Total Students:</strong> ${students.length}</p><table><tr><th>Student Name</th><th>Branch</th><th>Phone</th><th>Fee Amount</th><th>Due Date</th><th>Payment Status</th><th>Last Paid Date</th></tr>`;
-        students.forEach(s => { const feeStatus = getFeeStatus(s); const statusClass = feeStatus.status === 'overdue' ? 'overdue' : (feeStatus.status === 'paid' ? 'paid' : ''); html += `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.branch || '—')}</td><td>${escapeHtml(s.phone || '—')}</td><td>₹${s.feeAmount || 0}</td><td>${s.feeDueDay ? `${s.feeDueDay}th` : 'Not set'}</td><td class="${statusClass}">${feeStatus.message}</td><td>${s.lastFeePaidDate ? new Date(s.lastFeePaidDate).toLocaleDateString() : 'Never'}</td></tr>`; });
-        html += `</table><p style="text-align:center;margin-top:30px;color:#666;">Made with ❤️ by Thirulingeshwar</p></body></html>`;
-        win.document.write(html);
-        win.document.close();
-        win.print();
-        showToast('📊 Fee PDF opened for printing');
+        const win = window.open(); const date = new Date().toLocaleString();
+        let html = `<!DOCTYPE html><html><head><title>Class Progress Report</title><style>body{font-family:Arial;margin:40px;}h1{color:#e67e22;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;}th{background:#e67e22;color:white;}</style></head><body><h1>K. Thirulingeshwar - Class Progress Report</h1><p>Generated: ${date}</p><table border="1"><tr><th>Student</th><th>Branch</th><th>Total Classes</th><th>Attended</th><th>Present</th><th>Absent</th><th>No Class</th><th>Remaining</th><th>Completion</th><th>Status</th><th>Fee Amount</th><th>Payment</th></tr>`;
+        students.forEach(s => { const progress = getClassProgress(s); const feeStatus = getFeeStatus(s); const statusText = progress.classStatus === 'last_day' ? '🔥 LAST DAY' : (progress.classStatus === 'completed' ? '✅ COMPLETED' : '📚 In Progress'); html += `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.branch || '—')}</td><td>${progress.totalDays}</td><td><strong>${progress.attendedDays}</strong></td><td>${progress.presentCount}</td><td>${progress.absentCount}</td><td>${progress.noClassCount}</td><td>${progress.remainingDays}</td><td>${progress.percentage}%</td><td>${statusText}</td><td>₹${s.feeAmount || 0}</td><td>${feeStatus.message}</td></tr>`; });
+        html += `</table><p style="margin-top:30px;text-align:center;">Made with ❤️ by K. Thirulingeshwar</p></body></html>`;
+        win.document.write(html); win.document.close(); win.print();
     }
 
     function renderStudentList(filter = "") {
@@ -926,7 +912,7 @@
         if (!container) return;
         let filtered = students.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
         if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">👀 No students found</div>`; return; }
-        container.innerHTML = filtered.map(s => { const feeStatus = getFeeStatus(s); const overdueClass = feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : ''); return `<div class="student-list-item ${overdueClass}"><div><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4><p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p><p>⏰ In: ${s.inTime || '09:00'} | Out: ${s.outTime || '17:00'}</p><p class="fee-status" style="color: ${feeStatus.color === 'red' ? '#ef4444' : (feeStatus.color === 'orange' ? '#f59e0b' : '#10b981')}">💰 ${feeStatus.message}</p></div><div class="action-group"><button class="icon-btn view-student" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button><button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>${feeStatus.status !== 'paid' ? `<button class="icon-btn pay-fee" data-id="${s.id}" style="background:var(--success);">💰 Pay Fee</button>` : '<button class="icon-btn" disabled style="opacity:0.5;">✅ Paid</button>'}</div></div>`; }).join('');
+        container.innerHTML = filtered.map(s => { const progress = getClassProgress(s); const feeStatus = getFeeStatus(s); let specialClass = ''; let specialBadge = ''; if (progress.classStatus === 'last_day') { specialClass = 'last-day-class'; specialBadge = '<span class="badge last-day" style="margin-left:0.5rem;">🔥 Last Day!</span>'; } else if (progress.classStatus === 'completed') { specialClass = 'completed-class'; specialBadge = '<span class="badge completed" style="margin-left:0.5rem;">✅ Completed!</span>'; } const overdueClass = feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : ''); return `<div class="student-list-item ${overdueClass} ${specialClass}"><div><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span>${specialBadge}</h4><p>📚 ${escapeHtml(s.class || '—')} | 📞 ${escapeHtml(s.phone || '—')}</p><div class="class-progress-card"><div style="display:flex;justify-content:space-between;"><strong>📅 Classes Attended:</strong> <span>${progress.attendedDays}/${progress.totalDays} (${progress.percentage}%)</span></div><div class="progress-bar-container"><div style="width:${progress.percentage}%;height:12px;background:${progress.classStatus === 'completed' ? '#10b981' : (progress.classStatus === 'last_day' ? '#f59e0b' : 'var(--success)')};border-radius:1rem;"></div></div><div class="progress-stats"><span class="stat-item"><span class="stat-dot present"></span> Attended: ${progress.presentCount}</span><span class="stat-item"><span class="stat-dot absent"></span> Missed: ${progress.absentCount}</span><span class="stat-item"><span class="stat-dot noclass"></span> No Class: ${progress.noClassCount}</span><span class="stat-item"><span class="stat-dot remaining"></span> Left: ${progress.remainingDays}</span></div></div><p class="fee-status" style="color: ${feeStatus.color === 'red' ? '#ef4444' : (feeStatus.color === 'orange' ? '#f59e0b' : '#10b981')}">💰 ${feeStatus.message}</p></div><div class="action-group"><button class="icon-btn view-student" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button><button class="icon-btn delete-student" data-id="${s.id}">🗑️ Delete</button>${feeStatus.status !== 'paid' ? `<button class="icon-btn pay-fee" data-id="${s.id}" style="background:var(--success);">💰 Pay Fee</button>` : '<button class="icon-btn" disabled style="opacity:0.5;">✅ Paid</button>'}</div></div>`; }).join('');
         document.querySelectorAll('.view-student').forEach(btn => btn.addEventListener('click', () => showStudentDetails(btn.dataset.id)));
         document.querySelectorAll('.edit-student').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
         document.querySelectorAll('.delete-student').forEach(btn => btn.addEventListener('click', () => deleteStudentFromDB(btn.dataset.id)));
@@ -939,7 +925,7 @@
         const searchTerm = document.getElementById('feeSearchInput')?.value.toLowerCase() || "";
         let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
         if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">No students found</div>`; return; }
-        container.innerHTML = filtered.map(s => { const feeStatus = getFeeStatus(s); const statusClass = feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : ''); return `<div class="student-list-item ${statusClass}"><div style="flex:1"><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h4><p>📞 ${escapeHtml(s.phone || '—')} | 📚 ${escapeHtml(s.class || '—')}</p><p><strong>💰 Fee Amount:</strong> ₹${s.feeAmount || 'Not set'}</p><p><strong>📅 Due Date:</strong> Every ${s.feeDueDay ? `${s.feeDueDay}th` : 'Not set'} of month</p><p><strong>📆 Status:</strong> <span class="badge ${feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : '')}">${feeStatus.message}</span></p>${s.lastFeePaidDate ? `<p><small>✅ Last paid: ${new Date(s.lastFeePaidDate).toLocaleDateString()}</small></p>` : ''}</div><div style="display: flex; gap: 0.5rem;"><button class="icon-btn view-student-fee" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student-fee" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button>${feeStatus.status !== 'paid' ? `<button class="pay-fee-btn" data-id="${s.id}" style="background:var(--success);padding:0.5rem 1rem;border-radius:1rem;">💰 Mark Paid</button>` : '<button disabled style="background:gray;">✅ Paid</button>'}</div></div>`; }).join('');
+        container.innerHTML = filtered.map(s => { const progress = getClassProgress(s); const feeStatus = getFeeStatus(s); const statusClass = feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : ''); let specialBadge = ''; if (progress.classStatus === 'last_day') specialBadge = '<span class="badge last-day" style="margin-left:0.5rem;">🔥 Last Day!</span>'; else if (progress.classStatus === 'completed') specialBadge = '<span class="badge completed" style="margin-left:0.5rem;">✅ Completed!</span>'; return `<div class="student-list-item ${statusClass}"><div style="flex:1"><h4>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span>${specialBadge}</h4><p>📞 ${escapeHtml(s.phone || '—')} | 📚 ${escapeHtml(s.class || '—')}</p><p><strong>📅 Classes Attended:</strong> ${progress.attendedDays}/${progress.totalDays} days (${progress.percentage}%) | Remaining: ${progress.remainingDays}</p><p><strong>💰 Fee Amount:</strong> ₹${s.feeAmount || 'Not set'} | <strong>Due:</strong> ${s.feeDueDay ? `${s.feeDueDay}th` : 'Not set'}</p><p><strong>📆 Status:</strong> <span class="badge ${feeStatus.status === 'overdue' ? 'fee-overdue' : (feeStatus.status === 'due_soon' ? 'fee-due-soon' : '')}">${feeStatus.message}</span></p></div><div style="display: flex; gap: 0.5rem;"><button class="icon-btn view-student-fee" data-id="${s.id}" style="background:var(--info);">👁️ View</button><button class="icon-btn edit-student-fee" data-id="${s.id}" style="background:var(--accent);">✏️ Edit</button>${feeStatus.status !== 'paid' ? `<button class="pay-fee-btn" data-id="${s.id}" style="background:var(--success);padding:0.5rem 1rem;">💰 Mark Paid</button>` : '<button disabled style="background:gray;">✅ Paid</button>'}</div></div>`; }).join('');
         document.querySelectorAll('.view-student-fee').forEach(btn => btn.addEventListener('click', () => showStudentDetails(btn.dataset.id)));
         document.querySelectorAll('.edit-student-fee').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
         document.querySelectorAll('.pay-fee-btn').forEach(btn => btn.addEventListener('click', () => markFeeAsPaid(btn.dataset.id)));
@@ -951,12 +937,12 @@
         const searchTerm = document.getElementById('attendanceSearch')?.value.toLowerCase() || "";
         let filtered = students.filter(s => s.name.toLowerCase().includes(searchTerm));
         if (filtered.length === 0) { container.innerHTML = `<div class="empty-state">No students found</div>`; return; }
-        container.innerHTML = filtered.map(s => { const sel = currentAttendanceSelections[s.id] || { status: "Present", inTime: s.inTime || '09:00', outTime: s.outTime || '17:00', date: new Date().toISOString().slice(0,10) }; return `<div class="attendance-card" style="background:rgba(0,0,0,0.4);border-radius:1rem;padding:1rem;margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:0.5rem;"><div><h3>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span></h3><p>💰 Fee: ₹${s.feeAmount || 'Not set'} | Due: ${s.feeDueDay ? `${s.feeDueDay}th` : 'Not set'}</p></div><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="status-btn present ${sel.status === 'Present' ? 'selected' : ''}" data-id="${s.id}" data-status="Present">✅ Present</button><button class="status-btn absent ${sel.status === 'Absent' ? 'selected' : ''}" data-id="${s.id}" data-status="Absent">❌ Absent</button><button class="status-btn no-class ${sel.status === 'No Class' ? 'selected' : ''}" data-id="${s.id}" data-status="No Class">📚 No Class</button></div></div><div class="timing-section"><div class="timing-input"><label>📅 Date:</label><input type="date" id="date_${s.id}" class="date-input" value="${sel.date}"></div><div class="timing-input"><label>🕐 In:</label><input type="time" id="inTime_${s.id}" class="in-time-input" value="${sel.inTime}"></div><div class="timing-input"><label>🕔 Out:</label><input type="time" id="outTime_${s.id}" class="out-time-input" value="${sel.outTime}"></div></div><button class="individual-save-btn" data-id="${s.id}">💾 Save ${escapeHtml(s.name)}'s Attendance</button></div>`; }).join('');
+        container.innerHTML = filtered.map(s => { const sel = currentAttendanceSelections[s.id] || { status: "Present", inTime: s.inTime || '09:00', outTime: s.outTime || '17:00', date: new Date().toISOString().slice(0,10) }; const progress = getClassProgress(s); return `<div class="attendance-card" style="background:rgba(0,0,0,0.4);border-radius:1rem;padding:1rem;margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:0.5rem;"><div><h3>🙏 ${escapeHtml(s.name)} <span class="branch-badge">${escapeHtml(s.branch || '—')}</span>${progress.classStatus === 'last_day' ? '<span class="badge last-day" style="margin-left:0.5rem;">🔥 Last Day!</span>' : (progress.classStatus === 'completed' ? '<span class="badge completed" style="margin-left:0.5rem;">✅ Completed!</span>' : '')}</h3><p>💰 Fee: ₹${s.feeAmount || 'Not set'} | <strong>Classes Attended: ${progress.attendedDays}/${progress.totalDays}</strong> (${progress.percentage}%)</p><p style="font-size:0.7rem;">✅ Present: ${progress.presentCount} | ❌ Absent: ${progress.absentCount} | 📚 No Class: ${progress.noClassCount}</p></div><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="status-btn present ${sel.status === 'Present' ? 'selected' : ''}" data-id="${s.id}" data-status="Present">✅ Present (+1 Class)</button><button class="status-btn absent ${sel.status === 'Absent' ? 'selected' : ''}" data-id="${s.id}" data-status="Absent">❌ Absent</button><button class="status-btn no-class ${sel.status === 'No Class' ? 'selected' : ''}" data-id="${s.id}" data-status="No Class">📚 No Class</button></div></div>${progress.classStatus === 'last_day' ? '<p class="warning-text" style="margin-bottom:0.5rem;">⚠️ LAST CLASS DAY! Mark Present to complete the course.</p>' : (progress.classStatus === 'completed' ? '<p class="success-text" style="margin-bottom:0.5rem;">✅ All ${progress.totalDays} classes completed! Certificate ready.</p>' : '')}<div class="timing-section"><div class="timing-input"><label>📅 Date:</label><input type="date" id="date_${s.id}" class="date-input" value="${sel.date}" ${progress.classStatus === 'completed' ? 'disabled' : ''}></div><div class="timing-input"><label>🕐 In:</label><input type="time" id="inTime_${s.id}" class="in-time-input" value="${sel.inTime}" ${progress.classStatus === 'completed' ? 'disabled' : ''}></div><div class="timing-input"><label>🕔 Out:</label><input type="time" id="outTime_${s.id}" class="out-time-input" value="${sel.outTime}" ${progress.classStatus === 'completed' ? 'disabled' : ''}></div></div><button class="individual-save-btn" data-id="${s.id}" ${progress.classStatus === 'completed' ? 'disabled style="opacity:0.5;"' : ''}>💾 Save ${escapeHtml(s.name)}'s Attendance</button></div>`; }).join('');
         document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('click', () => { currentAttendanceSelections[btn.dataset.id] = { ...currentAttendanceSelections[btn.dataset.id], status: btn.dataset.status }; renderAttendancePageList(); }));
         document.querySelectorAll('.date-input').forEach(inp => inp.addEventListener('change', e => { const sid = inp.id.replace('date_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], date: e.target.value }; }));
         document.querySelectorAll('.in-time-input').forEach(inp => inp.addEventListener('change', e => { const sid = inp.id.replace('inTime_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], inTime: e.target.value }; }));
         document.querySelectorAll('.out-time-input').forEach(inp => inp.addEventListener('change', e => { const sid = inp.id.replace('outTime_',''); currentAttendanceSelections[sid] = { ...currentAttendanceSelections[sid], outTime: e.target.value }; }));
-        document.querySelectorAll('.individual-save-btn').forEach(btn => btn.addEventListener('click', () => saveIndividualAttendance(btn.dataset.id)));
+        document.querySelectorAll('.individual-save-btn').forEach(btn => { if (!btn.disabled) btn.addEventListener('click', () => saveIndividualAttendance(btn.dataset.id)); });
     }
 
     function renderRecordsPage(filter = "") {
@@ -965,7 +951,7 @@
         let records = [...attendanceRecords].sort((a,b) => new Date(b.date) - new Date(a.date));
         if (filter) records = records.filter(r => r.studentName.toLowerCase().includes(filter.toLowerCase()) || (r.date && r.date.includes(filter)));
         if (records.length === 0) { container.innerHTML = `<div class="empty-state">📭 No records found</div>`; return; }
-        container.innerHTML = records.map(rec => `<div class="record-item"><div><h4>🙏 ${escapeHtml(rec.studentName)}</h4><div>📅 ${rec.date} | 🟢 In: ${rec.inTime || '—'} | 🔴 Out: ${rec.outTime || '—'}</div></div><div><span class="badge ${rec.status === 'Present' ? 'present' : (rec.status === 'Absent' ? 'absent' : 'no-class')}">${rec.status}</span><button class="icon-btn delete-attendance" data-id="${rec.id}">🗑️ Delete</button></div></div>`).join('');
+        container.innerHTML = records.map(rec => `<div class="record-item"><div><h4>🙏 ${escapeHtml(rec.studentName)}</h4><div>📅 ${rec.date} | 🟢 In: ${rec.inTime || '—'} | 🔴 Out: ${rec.outTime || '—'}</div></div><div><span class="badge ${rec.status === 'Present' ? 'present' : (rec.status === 'Absent' ? 'absent' : 'no-class')}">${rec.status === 'Present' ? 'Present (Attended)' : rec.status}</span><button class="icon-btn delete-attendance" data-id="${rec.id}">🗑️ Delete</button></div></div>`).join('');
         document.querySelectorAll('.delete-attendance').forEach(btn => btn.addEventListener('click', () => deleteAttendanceRecord(btn.dataset.id)));
     }
 
@@ -974,9 +960,7 @@
         const today = new Date().toISOString().slice(0,10);
         const todayRecords = attendanceRecords.filter(r => r.date === today);
         const presentToday = todayRecords.filter(r => r.status === "Present").length;
-        const todayPercent = todayRecords.length ? (presentToday / todayRecords.length * 100).toFixed(1) : 0;
         document.getElementById('todayAttendanceCount').innerHTML = todayRecords.length ? `${presentToday} / ${todayRecords.length}` : "0 / 0";
-        document.getElementById('todayPercentage').innerHTML = `${todayPercent}% present`;
         const totalPresent = attendanceRecords.filter(r => r.status === "Present").length;
         const overallPercent = attendanceRecords.length ? (totalPresent / attendanceRecords.length * 100).toFixed(1) : 0;
         document.getElementById('overallPercentText').innerHTML = `${overallPercent}% overall (${totalPresent}/${attendanceRecords.length})`;
@@ -990,6 +974,7 @@
         renderRecordsPage(document.getElementById('recordsSearchInput')?.value || "");
         updateDashboardStats();
         renderDashboardSearchResults();
+        updateNotifications();
     }
 
     // Event Listeners
@@ -1008,7 +993,17 @@
         const name = document.getElementById('studentName').value.trim();
         if (!name) { alert("Name required"); return; }
         const days = [...document.querySelectorAll('#addStudentPage .day-checkbox input:checked')].map(cb => cb.value);
-        await addStudentToDB({ name, branch: document.getElementById('studentBranch').value.trim(), class: document.getElementById('studentClass').value.trim(), days: days, inTime: document.getElementById('defaultInTime').value, outTime: document.getElementById('defaultOutTime').value, phone: document.getElementById('phone').value.trim(), feeAmount: parseInt(document.getElementById('feeAmount').value) || 2500, feeDueDay: parseInt(document.getElementById('feeDueDay').value) || 15, feePaidForMonth: null, lastFeePaidDate: null });
+        await addStudentToDB({
+            name, branch: document.getElementById('studentBranch').value.trim(),
+            class: document.getElementById('studentClass').value.trim(),
+            totalClassDays: parseInt(document.getElementById('totalClassDays').value) || 15,
+            days: days, inTime: document.getElementById('defaultInTime').value,
+            outTime: document.getElementById('defaultOutTime').value,
+            phone: document.getElementById('phone').value.trim(),
+            feeAmount: parseInt(document.getElementById('feeAmount').value) || 2500,
+            feeDueDay: parseInt(document.getElementById('feeDueDay').value) || 15,
+            feePaidForMonth: null, lastFeePaidDate: null
+        });
     });
     
     document.getElementById('editStudentForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await updateStudentFromEdit(); });
@@ -1038,7 +1033,7 @@
     document.querySelector('.nav-btn[data-page="dashboard"]').click();
 
     const style = document.createElement('style');
-    style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } } .empty-state { text-align: center; padding: 2rem; color: var(--text-secondary); } .branch-badge { display: inline-block; padding: 0.2rem 0.5rem; background: rgba(230,126,34,0.2); border-radius: 0.5rem; font-size: 0.7rem; margin-left: 0.5rem; color: var(--accent); }`;
+    style.textContent = `@keyframes shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-3px);}75%{transform:translateX(3px);}} .empty-state{text-align:center;padding:2rem;color:var(--text-secondary);} .branch-badge{display:inline-block;padding:0.2rem 0.5rem;background:rgba(230,126,34,0.2);border-radius:0.5rem;font-size:0.7rem;margin-left:0.5rem;color:var(--accent);}`;
     document.head.appendChild(style);
 </script>
 </body>
